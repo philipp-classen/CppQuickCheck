@@ -3,5 +3,7 @@ compiler:
   - clang
   - gcc
 
+before_script:
+  - sudo apt-get update -qq
+  - sudo apt-get install libboost-thread-dev libboost-system-dev
 script: cmake . && make && ./all-catch-tests
-
