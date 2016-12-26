@@ -50,6 +50,11 @@ constexpr SeedType USE_DEFAULT_SEED = std::numeric_limits<uint32_t>::max();
 // if a seed has been explicitly set, it will will be used.
 constexpr const char* CPPQUICKCHECK_SEED_ENV = "CPPQUICKCHECK_SEED";
 
+// If this environment variable is set, failing tests will be
+// looped forever. Useful for attaching a debugger.
+constexpr const char *CPPQUICKCHECK_LOOP_FAILING_TESTS_ENV =
+    "CPPQUICKCHECK_LOOP_FAILING_TESTS";
+
 enum ResultType
 {
     QC_SUCCESS, // All tests succeeded
@@ -228,28 +233,33 @@ Result quickCheckOutput(const Property<T0, T1, T2, T3, T4> &prop,
                     out << "+++ OK, failed as expected. ";
                 }
 
-                out << "Falsifiable after " << numSuccess + 1
-                    << (numSuccess == 0 ? " test" : " tests");
-
                 std::size_t numShrinks = 0;
                 try {
+                    out << "Starting shrinking..." << std::flush;
                     std::pair<std::size_t, Input> shrinkRes =
                         detail::doShrink(prop, in, shrinkTimeout);
                     numShrinks = shrinkRes.first;
-                    if (numShrinks > 0) {
-                        out << " and " << numShrinks
-                            << (numShrinks == 1 ? " shrink" : " shrinks");
-                    }
-                    out << " for input:\n";
-                    printInput(out, shrinkRes.second);
+                    in = shrinkRes.second;
+                    out << "done\n";
                 } catch (...) {
-                    out << " for input:\n";
-                    printInput(out, in);
+                    out << "WARN: Aborted shrinking because an exception was thrown\n";
                 }
+                out << "Falsifiable after " << numSuccess + 1
+                    << (numSuccess == 0 ? " test" : " tests");
+                if (numShrinks > 0) {
+                    out << " and " << numShrinks
+                        << (numShrinks == 1 ? " shrink" : " shrinks");
+                }
+                out << " for input:\n";
+                printInput(out, in);
                 out << "(To reproduce the test, use "
                     << CPPQUICKCHECK_SEED_ENV << '=' << seed << ")\n";
 
                 if (prop.expect()) {
+                    while (getenv(CPPQUICKCHECK_LOOP_FAILING_TESTS_ENV) != nullptr) {
+                        out << "Looping failing test...\n";
+                        prop.checkInput(in);
+                    }
                     Result ret;
                     ret.result = QC_FAILURE;
                     ret.numTests = numSuccess + 1;
