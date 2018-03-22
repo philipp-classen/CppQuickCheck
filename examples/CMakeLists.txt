@@ -25,6 +25,9 @@ target_link_libraries(exampleElementsGen cppqc)
 add_executable(testSlowShrinking src/TestSlowShrinking.cpp)
 target_link_libraries(testSlowShrinking cppqc)
 
+add_executable(testWithCustomGenerator src/TestWithCustomGenerator.cpp)
+target_link_libraries(testSlowShrinking cppqc)
+
 # requires c++1y compile flag
 #add_executable(testBoostTupleSupport src/BoostTupleSupport.cpp)
 #target_link_libraries(testBoostTupleSupport cppqc)
