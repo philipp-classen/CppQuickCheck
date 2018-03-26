@@ -34,4 +34,4 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install libboost-thread-dev libboost-system-dev
 
-script: mkdir build && cd build && cmake . && make && ./all-catch-tests
+script: mkdir build && cd build && cmake .. && make && ./all-catch-tests
