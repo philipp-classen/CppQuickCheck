@@ -49,7 +49,7 @@ private:
 class CustomGenerator {
 public:
   Rectangle unGen(cppqc::RngEngine &rng, std::size_t n) {
-    boost::random::uniform_int_distribution<> dist{1, static_cast<int>(n) + 1};
+    std::uniform_int_distribution<> dist{1, static_cast<int>(n) + 1};
     int w = dist(rng);
     int h = (n + 1)/w;
     return Rectangle(w, h);
