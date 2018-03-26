@@ -49,7 +49,9 @@ QuickCheck++.
 Unit tests exists in the directory 'test'.
 
 ```
-$ cmake .
+$ mkdir build
+$ cd build
+$ cmake ..
 $ make check
 ```
 
