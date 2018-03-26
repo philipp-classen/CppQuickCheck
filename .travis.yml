@@ -1,16 +1,21 @@
-language: c++
+language: cpp
+
+sudo: required
+dist: trusty
+
 compiler:
   - gcc
   - clang
-script: cmake . && make && ./all-catch-tests
+
+os:
+- linux
 
 # source: https://github.com/OpenLightingProject/ola/blob/master/.travis.yml
 before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo add-apt-repository ppa:h-rayflood/gcc-upper -y
-  - sudo add-apt-repository "deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.8 main" -y
+  - sudo add-apt-repository "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.8 main" -y
   - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
-  - sudo add-apt-repository ppa:ubuntu-cloud-archive/icehouse-staging -y
   - sudo apt-get update
 
   - if [ "$CXX" = "g++" ]; then sudo apt-get install g++-4.9; fi
@@ -28,3 +33,5 @@ before_install:
 
   - sudo apt-get update
   - sudo apt-get install libboost-thread-dev libboost-system-dev
+
+script: mkdir build && cd build && cmake . && make && ./all-catch-tests
