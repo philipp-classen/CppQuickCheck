@@ -46,6 +46,16 @@ const Arbitrary<unsigned long>::unGenType ArbitraryImpl<unsigned long>::unGen =
 const Arbitrary<unsigned long>::shrinkType ArbitraryImpl<unsigned long>::shrink =
     shrinkIntegral<unsigned long>;
 
+const Arbitrary<signed long long>::unGenType ArbitraryImpl<signed long long>::unGen =
+    arbitrarySizedBoundedIntegral<signed long long>;
+const Arbitrary<signed long long>::shrinkType ArbitraryImpl<signed long long>::shrink =
+    shrinkIntegral<signed long long>;
+
+const Arbitrary<unsigned long long>::unGenType ArbitraryImpl<unsigned long long>::unGen =
+    arbitrarySizedBoundedIntegral<unsigned long long>;
+const Arbitrary<unsigned long long>::shrinkType ArbitraryImpl<unsigned long long>::shrink =
+    shrinkIntegral<unsigned long long>;
+
 const Arbitrary<float>::unGenType ArbitraryImpl<float>::unGen =
     arbitrarySizedReal<float>;
 const Arbitrary<float>::shrinkType ArbitraryImpl<float>::shrink = shrinkReal<float>;
