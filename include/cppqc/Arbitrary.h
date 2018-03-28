@@ -244,6 +244,20 @@ struct ArbitraryImpl<unsigned long>
 };
 
 template<>
+struct ArbitraryImpl<signed long long>
+{
+    static const Arbitrary<signed long long>::unGenType unGen;
+    static const Arbitrary<signed long long>::shrinkType shrink;
+};
+
+template<>
+struct ArbitraryImpl<unsigned long long>
+{
+    static const Arbitrary<unsigned long long>::unGenType unGen;
+    static const Arbitrary<unsigned long long>::shrinkType shrink;
+};
+
+template<>
 struct ArbitraryImpl<float>
 {
     static const Arbitrary<float>::unGenType unGen;
