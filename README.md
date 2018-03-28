@@ -61,6 +61,10 @@ To get a more detailed output, rerun it with
 $ ./all-catch-tests
 ```
 
+It uses the test framework
+[Catch2](https://github.com/catchorg/Catch2/tree/master/docs).
+Run `./all-catch-tests --help` to see the command line options.
+
 ## CONTRIBUTING
 
 Please direct your pull requests to https://github.com/philipp-classen/CppQuickCheck,

@@ -20,6 +20,7 @@ enable_testing()
 add_executable(
   all-catch-tests
   test/catch-main.cpp
+  test/arbitrary-tests.cpp
   test/shrink-explosion-protection.cpp
   test/compact-check-tests.cpp
   test/functional-tests.cpp)

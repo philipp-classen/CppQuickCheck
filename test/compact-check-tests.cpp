@@ -33,7 +33,7 @@ TEST_CASE("minimal passing example in compact check representation",
           "[functional][compact]") {
   const Result result = cppqc::gen<bool>()
                             .property("Dummy check (always passing)",
-                                      [](const bool& v) { return true; })
+                                      [](const bool& /*v*/) { return true; })
                             .testWithOutput();
 
   REQUIRE(result.result == QC_SUCCESS);
@@ -43,7 +43,7 @@ TEST_CASE("minimal failing example in compact check representation",
           "[functional][compact]") {
   const Result result = cppqc::gen<bool>()
                             .property("Dummy check (always failing)",
-                                      [](const bool& v) {
+                                      [](const bool& /*v*/) {
                                         return false;  // Intended to fail
                                       })
                             .testWithOutput();
