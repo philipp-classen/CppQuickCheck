@@ -49,7 +49,7 @@ QuickCheck++.
 Unit tests exists in the directory 'test'.
 
 ```
-$ mkdir build
+$ mkdir -p build
 $ cd build
 $ cmake ..
 $ make check
@@ -68,6 +68,30 @@ which is the repository where the active development takes place.
 
 Currently, CppQuickCheck uses C++11 but not C++14. Travis will compile
 the library and run the tests with GCC 4.9 and Clang 3.8.
+
+The code is autoformatted with
+[clang-format](https://clang.llvm.org/docs/ClangFormat.html)
+using the predefined Chromium style.
+
+If you have a pull request, it is not mandatory to match those
+rules perfectly, but if you have clang-format already installed, you can
+run the formatter locally with `make clangformat`:
+
+```
+$ mkdir -p build
+$ cd build
+$ cmake ..
+$ make clangformat
+```
+
+Hint: In general, clang-format is quite smart, but for rare
+exceptions like 3rd party libraries you can disable it like this:
+
+```
+// clang-format off
+... some code not to the touched ...
+// clang-format on
+```
 
 ## LICENSE
 

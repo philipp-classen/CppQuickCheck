@@ -39,6 +39,7 @@ namespace std {
     }
 }
 
+// clang-format off
 const std::map<std::string, boost::function<void ()> >
 sampleShrinkOutputCommand = boost::assign::map_list_of<std::string, boost::function<void ()> >
 ("bool",           boost::bind(sampleShrinkOutput<bool>,                Arbitrary<bool>(),                boost::ref(std::cout), 0, true, 0))
@@ -63,6 +64,7 @@ sampleShrinkOutputCommand = boost::assign::map_list_of<std::string, boost::funct
 ("pair",           boost::bind(sampleShrinkOutput<std::pair<int,int> >, Arbitrary<std::pair<int,int> >(), boost::ref(std::cout), 0, true, 0))
 ("tuple",          boost::bind(sampleShrinkOutput<std::tuple<int,int,int> >, tupleOf<int,int,int>(),    boost::ref(std::cout), 0, true, 0))
 ("string",         boost::bind(sampleShrinkOutput<std::string>,         Arbitrary<std::string>(),         boost::ref(std::cout), 0, true, 0));
+// clang-format on
 
 int main(int argc, char **argv)
 {

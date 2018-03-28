@@ -1,3 +1,5 @@
+// clang-format off
+
 /*
  *  CATCH v1.1 build 14 (develop branch)
  *  Generated: 2015-03-04 18:32:24.627737
@@ -9424,4 +9426,3 @@ using Catch::Detail::Approx;
 #endif
 
 #endif // TWOBLUECUBES_SINGLE_INCLUDE_CATCH_HPP_INCLUDED
-

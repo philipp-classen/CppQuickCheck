@@ -30,3 +30,14 @@ add_test(all-catch-tests all-catch-tests)
 # (source: http://stackoverflow.com/a/736838/783510)
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}
                   DEPENDS all-catch-tests)
+
+# additional target to perform clang-format run, requires clang-format
+file(GLOB_RECURSE ALL_SOURCE_FILES *.cpp *.h)
+
+add_custom_target(
+        clangformat
+        COMMAND /usr/bin/clang-format
+        -style=Chromium
+        -i
+        ${ALL_SOURCE_FILES}
+)

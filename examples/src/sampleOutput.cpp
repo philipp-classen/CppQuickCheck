@@ -31,6 +31,7 @@
 
 using namespace cppqc;
 
+// clang-format off
 const std::map<std::string, boost::function<void ()> >
 sampleOutputCommand = boost::assign::map_list_of<std::string, boost::function<void ()> >
 ("bool",           boost::bind(sampleOutput<bool>,                Arbitrary<bool>(),                boost::ref(std::cout), 0, 0))
@@ -55,6 +56,7 @@ sampleOutputCommand = boost::assign::map_list_of<std::string, boost::function<vo
 ("pair",           boost::bind(sampleOutput<std::pair<int,int> >, Arbitrary<std::pair<int,int> >(), boost::ref(std::cout), 0, 0))
 ("tuple",          boost::bind(sampleOutput<std::tuple<int,int,int> >, tupleOf<int,int,int>(),    boost::ref(std::cout), 0, 0))
 ("string",         boost::bind(sampleOutput<std::string>,         Arbitrary<std::string>(),         boost::ref(std::cout), 0, 0));
+// clang-format on
 
 int main(int argc, char **argv)
 {
