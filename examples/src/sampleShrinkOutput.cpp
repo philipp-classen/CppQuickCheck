@@ -25,19 +25,18 @@
 
 #include "cppqc.h"
 
-#include <map>
-#include <boost/bind.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/bind.hpp>
+#include <map>
 
 using namespace cppqc;
 
 namespace std {
-    template<class T1, class T2>
-    std::ostream &operator<<(std::ostream &out, const std::pair<T1, T2> &x)
-    {
-        return out << '(' << x.first << ',' << x.second << ')';
-    }
+template <class T1, class T2>
+std::ostream& operator<<(std::ostream& out, const std::pair<T1, T2>& x) {
+  return out << '(' << x.first << ',' << x.second << ')';
 }
+}  // namespace std
 
 // clang-format off
 const std::map<std::string, boost::function<void ()> >
@@ -66,19 +65,18 @@ sampleShrinkOutputCommand = boost::assign::map_list_of<std::string, boost::funct
 ("string",         boost::bind(sampleShrinkOutput<std::string>,         Arbitrary<std::string>(),         boost::ref(std::cout), 0, true, 0));
 // clang-format on
 
-int main(int argc, char **argv)
-{
-    if(argc == 1) {
-        std::cout << "Usage: TYPES... (e.g., int, double, string)\n";
-        return 0;
-    }
+int main(int argc, char** argv) {
+  if (argc == 1) {
+    std::cout << "Usage: TYPES... (e.g., int, double, string)\n";
+    return 0;
+  }
 
-    for (int i = 1; i < argc; ++i) {
-        std::map<std::string, boost::function<void ()> >::const_iterator it =
-            sampleShrinkOutputCommand.find(argv[i]);
-        if (it != sampleShrinkOutputCommand.end())
-            it->second();
-        else
-            std::cout << "unrecognized type \"" << argv[i] << "\"\n";
-    }
+  for (int i = 1; i < argc; ++i) {
+    std::map<std::string, boost::function<void()> >::const_iterator it =
+        sampleShrinkOutputCommand.find(argv[i]);
+    if (it != sampleShrinkOutputCommand.end())
+      it->second();
+    else
+      std::cout << "unrecognized type \"" << argv[i] << "\"\n";
+  }
 }

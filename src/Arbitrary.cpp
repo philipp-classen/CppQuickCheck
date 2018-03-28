@@ -22,7 +22,7 @@ const Arbitrary<signed short>::shrinkType ArbitraryImpl<signed short>::shrink =
 
 const Arbitrary<unsigned short>::unGenType
     ArbitraryImpl<unsigned short>::unGen =
-    arbitrarySizedBoundedIntegral<unsigned short>;
+        arbitrarySizedBoundedIntegral<unsigned short>;
 const Arbitrary<unsigned short>::shrinkType
     ArbitraryImpl<unsigned short>::shrink = shrinkIntegral<unsigned short>;
 
@@ -43,26 +43,31 @@ const Arbitrary<signed long>::shrinkType ArbitraryImpl<signed long>::shrink =
 
 const Arbitrary<unsigned long>::unGenType ArbitraryImpl<unsigned long>::unGen =
     arbitrarySizedBoundedIntegral<unsigned long>;
-const Arbitrary<unsigned long>::shrinkType ArbitraryImpl<unsigned long>::shrink =
-    shrinkIntegral<unsigned long>;
+const Arbitrary<unsigned long>::shrinkType
+    ArbitraryImpl<unsigned long>::shrink = shrinkIntegral<unsigned long>;
 
-const Arbitrary<signed long long>::unGenType ArbitraryImpl<signed long long>::unGen =
-    arbitrarySizedBoundedIntegral<signed long long>;
-const Arbitrary<signed long long>::shrinkType ArbitraryImpl<signed long long>::shrink =
-    shrinkIntegral<signed long long>;
+const Arbitrary<signed long long>::unGenType
+    ArbitraryImpl<signed long long>::unGen =
+        arbitrarySizedBoundedIntegral<signed long long>;
+const Arbitrary<signed long long>::shrinkType
+    ArbitraryImpl<signed long long>::shrink = shrinkIntegral<signed long long>;
 
-const Arbitrary<unsigned long long>::unGenType ArbitraryImpl<unsigned long long>::unGen =
-    arbitrarySizedBoundedIntegral<unsigned long long>;
-const Arbitrary<unsigned long long>::shrinkType ArbitraryImpl<unsigned long long>::shrink =
-    shrinkIntegral<unsigned long long>;
+const Arbitrary<unsigned long long>::unGenType
+    ArbitraryImpl<unsigned long long>::unGen =
+        arbitrarySizedBoundedIntegral<unsigned long long>;
+const Arbitrary<unsigned long long>::shrinkType
+    ArbitraryImpl<unsigned long long>::shrink =
+        shrinkIntegral<unsigned long long>;
 
 const Arbitrary<float>::unGenType ArbitraryImpl<float>::unGen =
     arbitrarySizedReal<float>;
-const Arbitrary<float>::shrinkType ArbitraryImpl<float>::shrink = shrinkReal<float>;
+const Arbitrary<float>::shrinkType ArbitraryImpl<float>::shrink =
+    shrinkReal<float>;
 
 const Arbitrary<double>::unGenType ArbitraryImpl<double>::unGen =
     arbitrarySizedReal<double>;
-const Arbitrary<double>::shrinkType ArbitraryImpl<double>::shrink = shrinkReal<double>;
+const Arbitrary<double>::shrinkType ArbitraryImpl<double>::shrink =
+    shrinkReal<double>;
 
 const Arbitrary<long double>::unGenType ArbitraryImpl<long double>::unGen =
     arbitrarySizedReal<long double>;
@@ -77,4 +82,4 @@ const Arbitrary<wchar_t>::unGenType ArbitraryImpl<wchar_t>::unGen =
 const Arbitrary<wchar_t>::shrinkType ArbitraryImpl<wchar_t>::shrink =
     shrinkIntegral<wchar_t>;
 
-}
+}  // namespace cppqc

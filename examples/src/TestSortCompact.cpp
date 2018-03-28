@@ -27,69 +27,58 @@
 #include "cppqc/CompactCheck.h"
 
 #include <algorithm>
-#include <iterator>
 #include <boost/static_assert.hpp>
+#include <iterator>
 #include <sstream>
 
 namespace uut {
 
 template <typename InputIterator>
-void selection_sort(InputIterator b, InputIterator e, bool make_mistakes = false)
-{
-    //Selection sort performs the following steps:
-    //1) From the current iterator, find the smallest value
-    //2) Swap the smallest value with the current iterator
-    //3) Continue until end of range
+void selection_sort(InputIterator b,
+                    InputIterator e,
+                    bool make_mistakes = false) {
+  // Selection sort performs the following steps:
+  // 1) From the current iterator, find the smallest value
+  // 2) Swap the smallest value with the current iterator
+  // 3) Continue until end of range
 
-    make_mistakes && b != e ? ++b : b;
-    for(InputIterator c = b; c != e ; ++c)
-    {
-        std::swap(*(std::min_element(c, e)), *c);
-    }
+  make_mistakes&& b != e ? ++b : b;
+  for (InputIterator c = b; c != e; ++c) {
+    std::swap(*(std::min_element(c, e)), *c);
+  }
 }
 
-}
+}  // namespace uut
 
-int main()
-{
-    std::cout << "* uut::selection_sort" << std::endl;
+int main() {
+  std::cout << "* uut::selection_sort" << std::endl;
 
-    cppqc::gen<std::vector<int>>()
-        .property("Sorting should be sorted",
-            [](const std::vector<int> &v)
-            {
-                std::vector<int> v_copy(v);
-                uut::selection_sort(std::begin(v_copy), std::end(v_copy), true);
-                return std::is_sorted(std::begin(v_copy), std::end(v_copy));
-            })
-        .classify([](const std::vector<int> &v)
-            {
-                return std::to_string(v.size());
-            })
-        .trivial([](const std::vector<int> &v)
-            {
-                return v.empty() || v.size() == 1;
-            })
-        .testWithOutput();
+  cppqc::gen<std::vector<int>>()
+      .property("Sorting should be sorted",
+                [](const std::vector<int>& v) {
+                  std::vector<int> v_copy(v);
+                  uut::selection_sort(std::begin(v_copy), std::end(v_copy),
+                                      true);
+                  return std::is_sorted(std::begin(v_copy), std::end(v_copy));
+                })
+      .classify(
+          [](const std::vector<int>& v) { return std::to_string(v.size()); })
+      .trivial(
+          [](const std::vector<int>& v) { return v.empty() || v.size() == 1; })
+      .testWithOutput();
 
-    std::cout << "* std::sort" << std::endl;
+  std::cout << "* std::sort" << std::endl;
 
-    cppqc::gen<std::vector<int>>()
-        .property("Sorting should be sorted",
-            [](const std::vector<int> &v)
-            {
-                std::vector<int> v_copy(v);
-                std::sort(v_copy.begin(), v_copy.end());
-                return std::is_sorted(std::begin(v_copy), std::end(v_copy));
-            })
-        .classify([](const std::vector<int> &v)
-            {
-                return std::to_string(v.size());
-            })
-        .trivial([](const std::vector<int> &v)
-            {
-                return v.empty() || v.size() == 1;
-            })
-        .testWithOutput();
-
+  cppqc::gen<std::vector<int>>()
+      .property("Sorting should be sorted",
+                [](const std::vector<int>& v) {
+                  std::vector<int> v_copy(v);
+                  std::sort(v_copy.begin(), v_copy.end());
+                  return std::is_sorted(std::begin(v_copy), std::end(v_copy));
+                })
+      .classify(
+          [](const std::vector<int>& v) { return std::to_string(v.size()); })
+      .trivial(
+          [](const std::vector<int>& v) { return v.empty() || v.size() == 1; })
+      .testWithOutput();
 }

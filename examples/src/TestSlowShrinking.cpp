@@ -25,37 +25,31 @@
 
 #include "cppqc.h"
 
-#include <vector>
+#include <atomic>
 #include <chrono>
 #include <thread>
-#include <atomic>
+#include <vector>
 
 // This simulates a test that is extremely slow. For such tests,
 // shrinking can become a problem, as it can take quite a while.
-struct PropTestSlowFunction: cppqc::Property<std::vector<int>>
-{
-    mutable std::atomic<bool> shrinking{false};
+struct PropTestSlowFunction : cppqc::Property<std::vector<int>> {
+  mutable std::atomic<bool> shrinking{false};
 
-    bool check(const std::vector<int> &v) const override
-    {
-        if (shrinking) {
-            std::cout << "Sleeping..." << std::endl;
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
+  bool check(const std::vector<int>& v) const override {
+    if (shrinking) {
+      std::cout << "Sleeping..." << std::endl;
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 
-        if (v.size() >= 4 && (v[3] % 5) == 1) {
-            shrinking = true;
-            return false;
-        }
-        return true;
+    if (v.size() >= 4 && (v[3] % 5) == 1) {
+      shrinking = true;
+      return false;
     }
-    std::string name() const override
-    {
-        return "Sorting should be sorted";
-    }
+    return true;
+  }
+  std::string name() const override { return "Sorting should be sorted"; }
 };
 
-int main()
-{
-    cppqc::quickCheckOutput(PropTestSlowFunction());
+int main() {
+  cppqc::quickCheckOutput(PropTestSlowFunction());
 }

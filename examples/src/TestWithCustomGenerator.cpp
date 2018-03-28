@@ -29,58 +29,53 @@
 #include <sstream>
 
 class Rectangle {
-public:
-  Rectangle (int w, int h) {
+ public:
+  Rectangle(int w, int h) {
     width = w;
     height = h;
   }
   int getWidth() const { return width; }
   int getHeight() const { return height; }
-  int getArea() const { return width*height; }
-  friend std::ostream& operator << (std::ostream& os, const Rectangle& r) {
+  int getArea() const { return width * height; }
+  friend std::ostream& operator<<(std::ostream& os, const Rectangle& r) {
     os << "width: " << r.width << " height: " << r.height << std::endl;
-    return os ;
+    return os;
   }
-private:
+
+ private:
   int width;
   int height;
 };
 
 class CustomGenerator {
-public:
-  Rectangle unGen(cppqc::RngEngine &rng, std::size_t n) {
+ public:
+  Rectangle unGen(cppqc::RngEngine& rng, std::size_t n) {
     std::uniform_int_distribution<> dist{1, static_cast<int>(n) + 1};
     int w = dist(rng);
-    int h = (n + 1)/w;
+    int h = (n + 1) / w;
     return Rectangle(w, h);
   }
 
-  std::vector<Rectangle> shrink(const Rectangle &r) {
+  std::vector<Rectangle> shrink(const Rectangle& r) {
     std::vector<Rectangle> ret;
     if (r.getWidth() > 1)
-      ret.push_back(Rectangle(r.getWidth()-1, r.getHeight()));
+      ret.push_back(Rectangle(r.getWidth() - 1, r.getHeight()));
     if (r.getHeight() > 1) {
-      ret.push_back(Rectangle(r.getWidth(), r.getHeight()-1));
+      ret.push_back(Rectangle(r.getWidth(), r.getHeight() - 1));
     }
     return ret;
   }
 };
 
 // A silly test just to demonstrate the custom generator.
-struct PropTestCustomGen : cppqc::Property<Rectangle>
-{
+struct PropTestCustomGen : cppqc::Property<Rectangle> {
   PropTestCustomGen() : Property(CustomGenerator()) {}
-    bool check(const Rectangle &r) const override
-    {
-      return (r.getArea() == r.getWidth() * r.getHeight());
-    }
-    std::string name() const override
-    {
-        return "TestCustomGen";
-    }
+  bool check(const Rectangle& r) const override {
+    return (r.getArea() == r.getWidth() * r.getHeight());
+  }
+  std::string name() const override { return "TestCustomGen"; }
 };
 
-int main()
-{
+int main() {
   cppqc::quickCheckOutput(PropTestCustomGen());
 }

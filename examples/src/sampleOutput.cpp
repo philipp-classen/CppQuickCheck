@@ -25,9 +25,9 @@
 
 #include "cppqc.h"
 
-#include <map>
-#include <boost/bind.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/bind.hpp>
+#include <map>
 
 using namespace cppqc;
 
@@ -58,18 +58,17 @@ sampleOutputCommand = boost::assign::map_list_of<std::string, boost::function<vo
 ("string",         boost::bind(sampleOutput<std::string>,         Arbitrary<std::string>(),         boost::ref(std::cout), 0, 0));
 // clang-format on
 
-int main(int argc, char **argv)
-{
-    if(argc == 1) {
-        std::cout << "Usage: TYPES... (e.g., int, double, string)\n";
-        return 0;
-    }
+int main(int argc, char** argv) {
+  if (argc == 1) {
+    std::cout << "Usage: TYPES... (e.g., int, double, string)\n";
+    return 0;
+  }
 
-    for (int i = 1; i < argc; ++i) {
-        auto it = sampleOutputCommand.find(argv[i]);
-        if (it != sampleOutputCommand.end())
-            it->second();
-        else
-            std::cout << "unrecognized type \"" << argv[i] << "\"\n";
-    }
+  for (int i = 1; i < argc; ++i) {
+    auto it = sampleOutputCommand.find(argv[i]);
+    if (it != sampleOutputCommand.end())
+      it->second();
+    else
+      std::cout << "unrecognized type \"" << argv[i] << "\"\n";
+  }
 }

@@ -26,54 +26,46 @@
 #include "cppqc.h"
 
 #include <algorithm>
-#include <iterator>
 #include <boost/static_assert.hpp>
+#include <iterator>
 #include <sstream>
 
 namespace uut {
 
 template <typename InputIterator>
-void selection_sort(InputIterator b, InputIterator e, bool make_mistakes = false)
-{
-    //Selection sort performs the following steps:
-    //1) From the current iterator, find the smallest value
-    //2) Swap the smallest value with the current iterator
-    //3) Continue until end of range
+void selection_sort(InputIterator b,
+                    InputIterator e,
+                    bool make_mistakes = false) {
+  // Selection sort performs the following steps:
+  // 1) From the current iterator, find the smallest value
+  // 2) Swap the smallest value with the current iterator
+  // 3) Continue until end of range
 
-    make_mistakes && b != e ? ++b : b;
-    for(InputIterator c = b; c != e ; ++c)
-    {
-        std::swap(*(std::min_element(c, e)), *c);
-    }
+  make_mistakes&& b != e ? ++b : b;
+  for (InputIterator c = b; c != e; ++c) {
+    std::swap(*(std::min_element(c, e)), *c);
+  }
 }
 
-}
+}  // namespace uut
 
-struct PropTestSort: cppqc::Property<std::vector<int>>
-{
-    bool check(const std::vector<int> &v) const override
-    {
-        std::vector<int> v_copy(v);
-        uut::selection_sort(std::begin(v_copy), std::end(v_copy), true);
-        return std::is_sorted(std::begin(v_copy), std::end(v_copy));
-    }
-    std::string name() const override
-    {
-        return "Sorting should be sorted";
-    }
-    std::string classify(const std::vector<int> &v) const override
-    {
-        std::ostringstream sstr;
-        sstr << "size " << v.size();
-        return sstr.str();
-    }
-    bool trivial(const std::vector<int> &v) const override
-    {
-        return v.empty() || v.size() == 1;
-    }
+struct PropTestSort : cppqc::Property<std::vector<int>> {
+  bool check(const std::vector<int>& v) const override {
+    std::vector<int> v_copy(v);
+    uut::selection_sort(std::begin(v_copy), std::end(v_copy), true);
+    return std::is_sorted(std::begin(v_copy), std::end(v_copy));
+  }
+  std::string name() const override { return "Sorting should be sorted"; }
+  std::string classify(const std::vector<int>& v) const override {
+    std::ostringstream sstr;
+    sstr << "size " << v.size();
+    return sstr.str();
+  }
+  bool trivial(const std::vector<int>& v) const override {
+    return v.empty() || v.size() == 1;
+  }
 };
 
-int main()
-{
-    cppqc::quickCheckOutput(PropTestSort());
+int main() {
+  cppqc::quickCheckOutput(PropTestSort());
 }

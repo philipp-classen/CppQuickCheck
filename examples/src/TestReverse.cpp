@@ -28,32 +28,24 @@
 #include <algorithm>
 #include <sstream>
 
-struct PropTestReverse : cppqc::Property<std::vector<int>>
-{
-    bool check(const std::vector<int> &v) const override
-    {
-        std::vector<int> vrev(v);
-        std::reverse(vrev.begin(), vrev.end());
-        std::reverse(vrev.begin(), vrev.end());
-        return std::equal(v.begin(), v.end(), vrev.begin());
-    }
-    std::string name() const override
-    {
-        return "Reversing Twice is Identity";
-    }
-    std::string classify(const std::vector<int> &v) const override
-    {
-        std::ostringstream sstr;
-        sstr << "size " << v.size();
-        return sstr.str();
-    }
-    bool trivial(const std::vector<int> &v) const override
-    {
-        return v.empty() || v.size() == 1;
-    }
+struct PropTestReverse : cppqc::Property<std::vector<int>> {
+  bool check(const std::vector<int>& v) const override {
+    std::vector<int> vrev(v);
+    std::reverse(vrev.begin(), vrev.end());
+    std::reverse(vrev.begin(), vrev.end());
+    return std::equal(v.begin(), v.end(), vrev.begin());
+  }
+  std::string name() const override { return "Reversing Twice is Identity"; }
+  std::string classify(const std::vector<int>& v) const override {
+    std::ostringstream sstr;
+    sstr << "size " << v.size();
+    return sstr.str();
+  }
+  bool trivial(const std::vector<int>& v) const override {
+    return v.empty() || v.size() == 1;
+  }
 };
 
-int main()
-{
-    cppqc::quickCheckOutput(PropTestReverse());
+int main() {
+  cppqc::quickCheckOutput(PropTestReverse());
 }

@@ -30,26 +30,19 @@
 
 // Useless property just to show usage of elements generator
 
-struct PropTestElementsGen : cppqc::Property<int>
-{
-    PropTestElementsGen() : Property(cppqc::elements({1, 4, 5})) {}
-    bool check(const int &v) const override
-    {
-        return (v == 1) || (v == 4) || (v == 5);
-    }
-    std::string name() const override
-    {
-        return "TestElementsGen";
-    }
-    std::string classify(const int &v) const override
-    {
-        std::ostringstream sstr;
-        sstr << v;
-        return sstr.str();
-    }
+struct PropTestElementsGen : cppqc::Property<int> {
+  PropTestElementsGen() : Property(cppqc::elements({1, 4, 5})) {}
+  bool check(const int& v) const override {
+    return (v == 1) || (v == 4) || (v == 5);
+  }
+  std::string name() const override { return "TestElementsGen"; }
+  std::string classify(const int& v) const override {
+    std::ostringstream sstr;
+    sstr << v;
+    return sstr.str();
+  }
 };
 
-int main()
-{
-    cppqc::quickCheckOutput(PropTestElementsGen());
+int main() {
+  cppqc::quickCheckOutput(PropTestElementsGen());
 }

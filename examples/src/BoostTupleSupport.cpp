@@ -31,101 +31,93 @@
 #include "cppqc.h"
 
 #include <boost/tuple/tuple.hpp>
-#include "boost/tuple/tuple_comparison.hpp"
 #include <boost/tuple/tuple_io.hpp>
 #include <utility>
+#include "boost/tuple/tuple_comparison.hpp"
 
 using namespace cppqc;
 
 namespace {
 
-    template <typename StdTuple, std::size_t... Is>
-    auto asBoostTuple(StdTuple &&stdTuple, std::index_sequence<Is...>) {
-        return boost::tuple<std::tuple_element_t<Is, std::decay_t<StdTuple>>...>
-                            (std::get<Is>(std::forward<StdTuple>(stdTuple))...);
-    }
-
-    template <typename BoostTuple, std::size_t... Is>
-    auto asStdTuple(BoostTuple &&boostTuple, std::index_sequence<Is...>) {
-        return std::tuple<typename boost::tuples::element<Is, std::decay_t<BoostTuple>>::type...>
-                         (boost::get<Is>(std::forward<BoostTuple>(boostTuple))...);
-    }
-
-    template <typename StdTuple>
-    auto asBoostTuple(StdTuple &&stdTuple) {
-        return asBoostTuple(std::forward<StdTuple>(stdTuple),
-                 std::make_index_sequence<std::tuple_size<std::decay_t<StdTuple>>::value>());
-    }
-
-    template <typename BoostTuple>
-    auto asStdTuple(BoostTuple&& boostTuple) {
-        return asStdTuple(std::forward<BoostTuple>(boostTuple),
-                 std::make_index_sequence<boost::tuples::length<std::decay_t<BoostTuple>>::value>());
-    }
-
-    template<typename... T>
-    struct BoostTupleGenerator
-    {
-        BoostTupleGenerator(const Generator<T> &...g) :
-            m_tupleGenerator(tupleOf(g...))
-        {
-        }
-
-        boost::tuple<T...> unGen(RngEngine &rng, std::size_t size) const
-        {
-            return asBoostTuple(m_tupleGenerator.unGen(rng, size));
-        }
-
-        std::vector<boost::tuple<T...>> shrink(boost::tuple<T...> shrinkInput) const
-        {
-            std::vector<boost::tuple<T...>> result;
-            for (const auto &shrink : m_tupleGenerator.shrink(asStdTuple(shrinkInput))) {
-                result.push_back(asBoostTuple(shrink));
-            }
-            return result;
-        }
-
-    private:
-
-        Generator<std::tuple<T...>> m_tupleGenerator;
-    };
-
+template <typename StdTuple, std::size_t... Is>
+auto asBoostTuple(StdTuple&& stdTuple, std::index_sequence<Is...>) {
+  return boost::tuple<std::tuple_element_t<Is, std::decay_t<StdTuple>>...>(
+      std::get<Is>(std::forward<StdTuple>(stdTuple))...);
 }
 
-template<typename... T>
-Generator<boost::tuple<T...>> boostTupleOf(const Generator<T> &...g)
-{
-    return BoostTupleGenerator<T...>(g...);
+template <typename BoostTuple, std::size_t... Is>
+auto asStdTuple(BoostTuple&& boostTuple, std::index_sequence<Is...>) {
+  return std::tuple<
+      typename boost::tuples::element<Is, std::decay_t<BoostTuple>>::type...>(
+      boost::get<Is>(std::forward<BoostTuple>(boostTuple))...);
 }
 
-template<typename... T>
-Generator<boost::tuple<T...>> boostTupleOf()
-{
-    return BoostTupleGenerator<T...>(Arbitrary<T>()...);
+template <typename StdTuple>
+auto asBoostTuple(StdTuple&& stdTuple) {
+  return asBoostTuple(std::forward<StdTuple>(stdTuple),
+                      std::make_index_sequence<
+                          std::tuple_size<std::decay_t<StdTuple>>::value>());
 }
 
+template <typename BoostTuple>
+auto asStdTuple(BoostTuple&& boostTuple) {
+  return asStdTuple(
+      std::forward<BoostTuple>(boostTuple),
+      std::make_index_sequence<
+          boost::tuples::length<std::decay_t<BoostTuple>>::value>());
+}
 
-struct AntisymmetricRelationProp : Property<boost::tuple<int, std::string, int>,
-                                            boost::tuple<int, std::string, int>>
-{
-    AntisymmetricRelationProp() : Property(
-        boostTupleOf<int, std::string, int>(),
-        boostTupleOf<int, std::string, int>())
-    {}
+template <typename... T>
+struct BoostTupleGenerator {
+  BoostTupleGenerator(const Generator<T>&... g)
+      : m_tupleGenerator(tupleOf(g...)) {}
 
-    bool check(const boost::tuple<int, std::string, int> &v1,
-               const boost::tuple<int, std::string, int> &v2) const override
-    {
-        return (v1 <= v2 && v1 >= v2) == (v1 == v2);
+  boost::tuple<T...> unGen(RngEngine& rng, std::size_t size) const {
+    return asBoostTuple(m_tupleGenerator.unGen(rng, size));
+  }
+
+  std::vector<boost::tuple<T...>> shrink(boost::tuple<T...> shrinkInput) const {
+    std::vector<boost::tuple<T...>> result;
+    for (const auto& shrink :
+         m_tupleGenerator.shrink(asStdTuple(shrinkInput))) {
+      result.push_back(asBoostTuple(shrink));
     }
+    return result;
+  }
 
-    std::string name() const override
-    {
-        return "Comparison must be antisymmetric";
-    }
+ private:
+  Generator<std::tuple<T...>> m_tupleGenerator;
 };
 
-int main()
-{
-    cppqc::quickCheckOutput(AntisymmetricRelationProp());
+}  // namespace
+
+template <typename... T>
+Generator<boost::tuple<T...>> boostTupleOf(const Generator<T>&... g) {
+  return BoostTupleGenerator<T...>(g...);
+}
+
+template <typename... T>
+Generator<boost::tuple<T...>> boostTupleOf() {
+  return BoostTupleGenerator<T...>(Arbitrary<T>()...);
+}
+
+struct AntisymmetricRelationProp
+    : Property<boost::tuple<int, std::string, int>,
+               boost::tuple<int, std::string, int>> {
+  AntisymmetricRelationProp()
+      : Property(boostTupleOf<int, std::string, int>(),
+                 boostTupleOf<int, std::string, int>()) {}
+
+  bool check(const boost::tuple<int, std::string, int>& v1,
+             const boost::tuple<int, std::string, int>& v2) const override {
+    return (v1 <= v2 && v1 >= v2) == (v1 == v2);
+  }
+
+  std::string name() const override {
+    return "Comparison must be antisymmetric";
+  }
+};
+
+int main() {
+  cppqc::quickCheckOutput(AntisymmetricRelationProp());
 }

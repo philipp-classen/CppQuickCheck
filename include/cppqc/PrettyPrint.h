@@ -26,44 +26,37 @@
 #ifndef CPPQC_PRETTY_PRINT_H
 #define CPPQC_PRETTY_PRINT_H
 
-#include "cxx-prettyprint.h"
-#include <string>
 #include <sstream>
+#include <string>
+#include "cxx-prettyprint.h"
 
 namespace cppqc {
 
-    // The default implementation falls back to the std::ofstream
-    // implementation. Note that because of the usage of "cxx-prettyprint",
-    // it can handle understands C++ containers, pairs and tuples.
-    //
-    // Strings are quoted to improve readability.
-    //
-    template <class T>
-    struct PrettyPrint
-    {
-        static std::string toString(const T& x)
-        {
-            std::ostringstream out;
-            out << x;
-            return out.str();
-        }
-    };
+// The default implementation falls back to the std::ofstream
+// implementation. Note that because of the usage of "cxx-prettyprint",
+// it can handle understands C++ containers, pairs and tuples.
+//
+// Strings are quoted to improve readability.
+//
+template <class T>
+struct PrettyPrint {
+  static std::string toString(const T& x) {
+    std::ostringstream out;
+    out << x;
+    return out.str();
+  }
+};
 
-    template <>
-    struct PrettyPrint<std::string>
-    {
-        static std::string toString(const std::string& x)
-        {
-            return '\"' + x + '\"';
-        }
-    };
+template <>
+struct PrettyPrint<std::string> {
+  static std::string toString(const std::string& x) { return '\"' + x + '\"'; }
+};
 
-    template <class T>
-    std::string prettyPrint(const T& x)
-    {
-        return PrettyPrint<T>::toString(x);
-    }
-
+template <class T>
+std::string prettyPrint(const T& x) {
+  return PrettyPrint<T>::toString(x);
 }
+
+}  // namespace cppqc
 
 #endif

@@ -30,25 +30,17 @@
 // In general, this is not true, for instance, if A is zero.
 // However, by using the "choose" generator, we can define that
 // A is in a given interval (between 2 and 1000 in this example).
-struct AxA_isGreaterThan_A : cppqc::Property<int>
-{
-    static constexpr int MIN = 2;
-    static constexpr int MAX = 1000;
-    
-    AxA_isGreaterThan_A() : Property(cppqc::choose(MIN, MAX)) {}
+struct AxA_isGreaterThan_A : cppqc::Property<int> {
+  static constexpr int MIN = 2;
+  static constexpr int MAX = 1000;
 
-    bool check(const int &A) const override
-    {
-        return A * A > A;
-    }
+  AxA_isGreaterThan_A() : Property(cppqc::choose(MIN, MAX)) {}
 
-    std::string name() const override
-    {
-        return "A*A > A";
-    }
+  bool check(const int& A) const override { return A * A > A; }
+
+  std::string name() const override { return "A*A > A"; }
 };
 
-int main()
-{
-    cppqc::quickCheckOutput(AxA_isGreaterThan_A());
+int main() {
+  cppqc::quickCheckOutput(AxA_isGreaterThan_A());
 }

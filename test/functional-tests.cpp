@@ -23,88 +23,68 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cppqc.h"
 #include "catch.hpp"
+#include "cppqc.h"
 
 using namespace cppqc;
 
 namespace FunctionalTestsFixtures {
 
-struct MinimalPassingProperty : cppqc::Property<bool>
-{
-    bool check(const bool &v) const override
-    {
-        return true;
-    }
-    std::string name() const override
-    {
-        return "Dummy check (will always pass)";
-    }
+struct MinimalPassingProperty : cppqc::Property<bool> {
+  bool check(const bool& v) const override { return true; }
+  std::string name() const override { return "Dummy check (will always pass)"; }
 };
 
-struct MinimalFailingProperty : cppqc::Property<bool>
-{
-    bool check(const bool &v) const override
-    {
-        return false; // fails intentionally
-    }
-    std::string name() const override
-    {
-        return "Dummy check (will always fail)";
-    }
+struct MinimalFailingProperty : cppqc::Property<bool> {
+  bool check(const bool& v) const override {
+    return false;  // fails intentionally
+  }
+  std::string name() const override { return "Dummy check (will always fail)"; }
 };
 
-struct NontriviallyFailingProperty : cppqc::Property<std::vector<int>>
-{
-    bool check(const std::vector<int> &v) const override
-    {
-        if (v.size() >= 1 && (v[0] % 99) == 1) {
-            return false;
-        }
-
-        return true;
+struct NontriviallyFailingProperty : cppqc::Property<std::vector<int>> {
+  bool check(const std::vector<int>& v) const override {
+    if (v.size() >= 1 && (v[0] % 99) == 1) {
+      return false;
     }
+
+    return true;
+  }
 };
 
-} // end FunctionalTestsFixtures
+}  // namespace FunctionalTestsFixtures
 
-TEST_CASE("minimal passing example",
-          "[functional]")
-{
-    const Result result =
-        quickCheckOutput(FunctionalTestsFixtures::MinimalPassingProperty{});
+TEST_CASE("minimal passing example", "[functional]") {
+  const Result result =
+      quickCheckOutput(FunctionalTestsFixtures::MinimalPassingProperty{});
 
-    REQUIRE(result.result == QC_SUCCESS);
+  REQUIRE(result.result == QC_SUCCESS);
 }
 
-TEST_CASE("minimal failing example",
-          "[functional]")
-{
-    const Result result =
-        quickCheckOutput(FunctionalTestsFixtures::MinimalFailingProperty{});
+TEST_CASE("minimal failing example", "[functional]") {
+  const Result result =
+      quickCheckOutput(FunctionalTestsFixtures::MinimalFailingProperty{});
 
-    REQUIRE(result.result == QC_FAILURE);
+  REQUIRE(result.result == QC_FAILURE);
 }
 
-TEST_CASE("tests with fixed seeds must be repeatible",
-          "[functional][seed]")
-{
-    for (int i = 0; i < 100; i++) {
-        const auto seed = static_cast<SeedType>(i);
+TEST_CASE("tests with fixed seeds must be repeatible", "[functional][seed]") {
+  for (int i = 0; i < 100; i++) {
+    const auto seed = static_cast<SeedType>(i);
 
-        std::ostringstream output1;
-        const Result run1 =
-            quickCheckOutput(FunctionalTestsFixtures::NontriviallyFailingProperty{},
-                             output1, 100, 0, 0, DISABLE_SHRINK_TIMEOUT, seed);
-        REQUIRE(run1.seed == seed);
+    std::ostringstream output1;
+    const Result run1 =
+        quickCheckOutput(FunctionalTestsFixtures::NontriviallyFailingProperty{},
+                         output1, 100, 0, 0, DISABLE_SHRINK_TIMEOUT, seed);
+    REQUIRE(run1.seed == seed);
 
-        std::ostringstream output2;
-        const Result run2 =
-            quickCheckOutput(FunctionalTestsFixtures::NontriviallyFailingProperty{},
-                             output2, 100, 0, 0, DISABLE_SHRINK_TIMEOUT, seed);
-        REQUIRE(run2.seed == seed);
+    std::ostringstream output2;
+    const Result run2 =
+        quickCheckOutput(FunctionalTestsFixtures::NontriviallyFailingProperty{},
+                         output2, 100, 0, 0, DISABLE_SHRINK_TIMEOUT, seed);
+    REQUIRE(run2.seed == seed);
 
-        REQUIRE(run1.result == run2.result);
-        REQUIRE(output1.str() == output2.str());
-    }
+    REQUIRE(run1.result == run2.result);
+    REQUIRE(output1.str() == output2.str());
+  }
 }
