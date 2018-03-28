@@ -39,8 +39,8 @@ std::ostream& operator<<(std::ostream& out, const std::pair<T1, T2>& x) {
 }  // namespace std
 
 // clang-format off
-const std::map<std::string, boost::function<void ()> >
-sampleShrinkOutputCommand = boost::assign::map_list_of<std::string, boost::function<void ()> >
+const std::map<std::string, std::function<void ()> >
+sampleShrinkOutputCommand = boost::assign::map_list_of<std::string, std::function<void ()> >
 ("bool",           boost::bind(sampleShrinkOutput<bool>,                Arbitrary<bool>(),                boost::ref(std::cout), 0, true, 0))
 ("char",           boost::bind(sampleShrinkOutput<char>,                Arbitrary<char>(),                boost::ref(std::cout), 0, true, 0))
 ("wchar_t",        boost::bind(sampleShrinkOutput<wchar_t>,             Arbitrary<wchar_t>(),             boost::ref(std::cout), 0, true, 0))
@@ -61,7 +61,7 @@ sampleShrinkOutputCommand = boost::assign::map_list_of<std::string, boost::funct
 ("double",         boost::bind(sampleShrinkOutput<double>,              Arbitrary<double>(),              boost::ref(std::cout), 0, true, 0))
 ("long double",    boost::bind(sampleShrinkOutput<long double>,         Arbitrary<long double>(),         boost::ref(std::cout), 0, true, 0))
 ("pair",           boost::bind(sampleShrinkOutput<std::pair<int,int> >, Arbitrary<std::pair<int,int> >(), boost::ref(std::cout), 0, true, 0))
-("tuple",          boost::bind(sampleShrinkOutput<std::tuple<int,int,int> >, tupleOf<int,int,int>(),    boost::ref(std::cout), 0, true, 0))
+("tuple",          boost::bind(sampleShrinkOutput<std::tuple<int,int,int> >, tupleOf<int,int,int>(),      boost::ref(std::cout), 0, true, 0))
 ("string",         boost::bind(sampleShrinkOutput<std::string>,         Arbitrary<std::string>(),         boost::ref(std::cout), 0, true, 0));
 // clang-format on
 

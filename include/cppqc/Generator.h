@@ -27,11 +27,12 @@
 #define CPPQC_GEN_H
 
 #include <algorithm>
-#include <boost/function.hpp>
-#include <boost/random/uniform_int.hpp>
+#include <cassert>
 #include <cstddef>
+#include <functional>
 #include <iosfwd>
 #include <map>
+#include <ostream>
 #include <random>
 #include <stdexcept>
 #include <tuple>
@@ -362,7 +363,7 @@ namespace detail {
 template <class T>
 class SizedGenerator {
  public:
-  SizedGenerator(boost::function<Generator<T>(std::size_t)> f)
+  SizedGenerator(std::function<Generator<T>(std::size_t)> f)
       : m_genfun(f), m_lastgen(f(0)) {}
 
   T unGen(RngEngine& rng, std::size_t size) {
@@ -373,14 +374,14 @@ class SizedGenerator {
   std::vector<T> shrink(const T& x) { return m_lastgen.shrink(x); }
 
  private:
-  const boost::function<Generator<T>(std::size_t)> m_genfun;
+  const std::function<Generator<T>(std::size_t)> m_genfun;
   Generator<T> m_lastgen;
 };
 }  // namespace detail
 
 /// Used to create generators that depend on the size parameter.
 template <class T>
-Generator<T> sized(boost::function<Generator<T>(std::size_t)> f) {
+Generator<T> sized(std::function<Generator<T>(std::size_t)> f) {
   return detail::SizedGenerator<T>(f);
 }
 
@@ -438,7 +439,7 @@ class ChooseStatelessGenerator {
   }
 
   Integer unGen(RngEngine& rng, std::size_t) const {
-    boost::uniform_int<Integer> dist(m_min, m_max);
+    std::uniform_int_distribution<Integer> dist{m_min, m_max};
     return dist(rng);
   }
 
@@ -472,7 +473,7 @@ namespace detail {
 template <class T>
 class SuchThatGenerator {
  public:
-  SuchThatGenerator(const Generator<T>& g, boost::function<bool(T)> pred)
+  SuchThatGenerator(const Generator<T>& g, std::function<bool(T)> pred)
       : m_gen(g), m_pred(pred) {}
 
   T unGen(RngEngine& rng, std::size_t size) {
@@ -492,14 +493,14 @@ class SuchThatGenerator {
 
  private:
   const Generator<T> m_gen;
-  const boost::function<bool(T)> m_pred;
+  const std::function<bool(T)> m_pred;
 };
 
 template <class T>
 class SuchThatStatelessGenerator {
  public:
   SuchThatStatelessGenerator(const StatelessGenerator<T>& g,
-                             boost::function<bool(T)> pred)
+                             std::function<bool(T)> pred)
       : m_gen(g), m_pred(pred) {}
 
   T unGen(RngEngine& rng, std::size_t size) const {
@@ -519,7 +520,7 @@ class SuchThatStatelessGenerator {
 
  private:
   const StatelessGenerator<T> m_gen;
-  const boost::function<bool(T)> m_pred;
+  const std::function<bool(T)> m_pred;
 };
 }  // namespace detail
 
@@ -543,7 +544,7 @@ class OneOfGenerator {
   }
 
   T unGen(RngEngine& rng, std::size_t size) {
-    boost::uniform_int<std::size_t> dist(0, m_gens.size() - 1);
+    std::uniform_int_distribution<std::size_t> dist{0, m_gens.size() - 1};
     m_last_index = dist(rng);
     return m_gens[m_last_index].unGen(rng, size);
   }
@@ -578,10 +579,9 @@ class FrequencyGenerator {
   }
 
   T unGen(RngEngine& rng, std::size_t size) {
-    boost::uniform_int<std::size_t> dist(1, m_tot);
+    std::uniform_int_distribution<std::size_t> dist{1, m_tot};
     std::size_t weight = dist(rng);
-    typename std::map<std::size_t, Generator<T>>::iterator it =
-        m_gens.lower_bound(weight);
+    auto it = m_gens.lower_bound(weight);
     if (it == m_gens.end()) {
       throw std::logic_error("frequency: all generators have weight 0");
     } else {
@@ -591,8 +591,7 @@ class FrequencyGenerator {
   }
 
   std::vector<T> shrink(const T& x) {
-    typename std::map<std::size_t, Generator<T>>::iterator it =
-        m_gens.find(m_last_index);
+    auto it = m_gens.find(m_last_index);
     assert(it != m_gens.end());
     return it->second.shrink(x);
   }
@@ -628,7 +627,7 @@ class ElementsGenerator {
   }
 
   T unGen(RngEngine& rng, std::size_t /*size*/) {
-    boost::uniform_int<std::size_t> dist(0, m_elems.size() - 1);
+    std::uniform_int_distribution<std::size_t> dist{0, m_elems.size() - 1};
     m_last_index = dist(rng);
     return m_elems[m_last_index];
   }
@@ -734,7 +733,7 @@ namespace detail {
 template <class T, class U>
 class ConvertGenerator {
  public:
-  ConvertGenerator(boost::function<T(U)> f, const Generator<U>& g)
+  ConvertGenerator(std::function<T(U)> f, const Generator<U>& g)
       : m_convert(f), m_gen(g) {}
 
   T unGen(RngEngine& rng, std::size_t size) {
@@ -746,8 +745,7 @@ class ConvertGenerator {
   }
 
   std::vector<T> shrink(const T& x) {
-    typename std::vector<T>::iterator it =
-        std::find(m_lastgen_t.begin(), m_lastgen_t.end(), x);
+    auto it = std::find(m_lastgen_t.begin(), m_lastgen_t.end(), x);
     assert(it != m_lastgen_t.end());
     U last_u = m_lastgen_u[it - m_lastgen_t.begin()];
     m_lastgen_t.clear();
@@ -759,7 +757,7 @@ class ConvertGenerator {
   }
 
  private:
-  boost::function<T(U)> m_convert;
+  std::function<T(U)> m_convert;
   const Generator<U> m_gen;
   std::vector<T> m_lastgen_t;
   std::vector<U> m_lastgen_u;
@@ -769,14 +767,14 @@ class ConvertGenerator {
 /// Converts a generator of U's into a generator of T's by passing the results
 /// through a function which converts U's into T's.
 template <class T, class U>
-Generator<T> convert(boost::function<T(U)> f,
+Generator<T> convert(std::function<T(U)> f,
                      const Generator<U>& g = Arbitrary<U>()) {
   return detail::ConvertGenerator<T, U>(f, g);
 }
 
 /// Convenience function to aid generic programming, equivalent to convert.
 template <class T, class U1>
-Generator<T> combine(boost::function<T(U1)> f,
+Generator<T> combine(std::function<T(U1)> f,
                      const Generator<U1>& g1 = Arbitrary<U1>()) {
   return detail::ConvertGenerator<T, U1>(f, g1);
 }
@@ -785,7 +783,7 @@ namespace detail {
 template <class T, class U1, class U2>
 class CombineGenerator {
  public:
-  CombineGenerator(boost::function<T(U1, U2)> f,
+  CombineGenerator(std::function<T(U1, U2)> f,
                    const Generator<U1>& g1,
                    const Generator<U2>& g2)
       : m_combine(f), m_gen1(g1), m_gen2(g2) {}
@@ -801,8 +799,7 @@ class CombineGenerator {
   }
 
   std::vector<T> shrink(const T& x) {
-    typename std::vector<T>::const_iterator it =
-        std::find(m_lastgen_t.begin(), m_lastgen_t.end(), x);
+    auto it = std::find(m_lastgen_t.begin(), m_lastgen_t.end(), x);
     assert(it != m_lastgen_t.end());
     std::size_t dist = it - m_lastgen_t.begin();
     U1 last_u1 = m_lastgen_u1[dist];
@@ -823,7 +820,7 @@ class CombineGenerator {
   }
 
  private:
-  boost::function<T(U1, U2)> m_combine;
+  std::function<T(U1, U2)> m_combine;
   const Generator<U1> m_gen1;
   const Generator<U2> m_gen2;
   std::vector<T> m_lastgen_t;
@@ -836,7 +833,7 @@ class CombineGenerator {
 /// results through a function which converts U1's and U2's into T's. Ie. the
 /// same as convert for functions taking more than one argument.
 template <class T, class U1, class U2>
-Generator<T> combine(boost::function<T(U1, U2)> f,
+Generator<T> combine(std::function<T(U1, U2)> f,
                      const Generator<U1>& g1 = Arbitrary<U1>(),
                      const Generator<U2>& g2 = Arbitrary<U2>()) {
   return detail::CombineGenerator<T, U1, U2>(f, g1, g2);
@@ -849,7 +846,7 @@ class ListOfStatelessGenerator {
   ListOfStatelessGenerator(const StatelessGenerator<T>& g) : m_gen(g) {}
 
   std::vector<T> unGen(RngEngine& rng, std::size_t size) const {
-    boost::uniform_int<std::size_t> dist(0, size);
+    std::uniform_int_distribution<std::size_t> dist{0, size};
     std::size_t n = dist(rng);
     std::vector<T> ret;
     ret.reserve(n);

@@ -38,7 +38,7 @@ constexpr int SAMPLES = 10000;
 constexpr double COINFLIP_TOLERANCE = 0.3;
 static_assert(COINFLIP_TOLERANCE < 0.5, "0.5 is the theoretical limit");
 
-constexpr double SEEN_VALUES_TOLERANCE = 0.6;
+constexpr double SEEN_VALUES_TOLERANCE = 0.4;
 static_assert(SEEN_VALUES_TOLERANCE < 1.0, "1.0 is the theoretical limit");
 
 template <typename T>
@@ -156,4 +156,16 @@ TEST_CASE("Arbitrary<char>", "[arbitrary][char]") {
 
 TEST_CASE("Arbitrary<wchar_t>", "[arbitrary][wchar_t]") {
   TestArbitrary<wchar_t>{}();
+}
+
+TEST_CASE("Arbitrary<float>", "[arbitrary][float]") {
+  TestArbitrary<float>{}();
+}
+
+TEST_CASE("Arbitrary<double>", "[arbitrary][double]") {
+  TestArbitrary<double>{}();
+}
+
+TEST_CASE("Arbitrary<long double>", "[arbitrary][long double]") {
+  TestArbitrary<long double>{}();
 }

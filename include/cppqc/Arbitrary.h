@@ -29,50 +29,70 @@
 #include "Generator.h"
 
 #include <limits>
-
-#include <boost/random/poisson_distribution.hpp>
-#include <boost/random/uniform_01.hpp>
-#include <boost/random/uniform_int.hpp>
-#include <boost/random/uniform_real.hpp>
-#include <boost/random/uniform_smallint.hpp>
-#include <boost/random/variate_generator.hpp>
+#include <random>
 
 namespace cppqc {
 
 // default generators
 
-template <class Integral>
-Integral arbitrarySizedIntegral(RngEngine& rng, std::size_t size) {
-  boost::uniform_int<Integral> dist(std::numeric_limits<Integral>::is_signed
-                                        ? -Integral(size)
-                                        : Integral(size),
-                                    Integral(size));
-  return dist(rng);
-}
-
+/*
+ * Generates an integral number from a bounded domain defined by
+ * the integer type.
+ * The number will be chosen uniformly, that means big numbers
+ * are equally likely as numbers near 0.
+ */
 template <class Integral>
 Integral arbitraryBoundedIntegral(RngEngine& rng, std::size_t /*size*/) {
-  boost::uniform_int<Integral> dist(std::numeric_limits<Integral>::min(),
-                                    std::numeric_limits<Integral>::max());
+  std::uniform_int_distribution<Integral> dist{
+      std::numeric_limits<Integral>::lowest(),
+      std::numeric_limits<Integral>::max()};
   return dist(rng);
 }
 
 template <class Integral>
-Integral arbitrarySizedBoundedIntegral(RngEngine& rng, std::size_t size) {
-  boost::poisson_distribution<Integral> dist(size == 0 ? 1 : size);
-  boost::variate_generator<RngEngine&, boost::uniform_01<>> gen(
-      rng, boost::uniform_01<>());
-  Integral r = dist(gen);
-  if (std::numeric_limits<Integral>::is_signed) {
-    if (boost::uniform_smallint<int>(0, 1)(rng))
-      r = -r;
+Integral arbitrarySizedIntegral(RngEngine& rng, std::size_t size) {
+  if (size > std::numeric_limits<Integral>::max()) {
+    return arbitraryBoundedIntegral<Integral>(rng, size);
   }
-  return r;
+
+  std::uniform_int_distribution<Integral> dist(
+      std::numeric_limits<Integral>::is_signed ? -Integral(size)
+                                               : Integral(size),
+      Integral(size));
+  return dist(rng);
+}
+
+/*
+ * Generates an integral number from a bounded domain. The number is
+ * chosen from the entire range of the type, but numbers near 0 are
+ * generated more often than big numbers.
+ */
+template <class Integral>
+Integral arbitrarySizedBoundedIntegral(RngEngine& rng, std::size_t size) {
+  const double limit =
+      std::min(double(size), double(std::numeric_limits<Integral>::max()));
+
+  // When dividing by 3, about 99% of the values should be
+  // in the interval [-limit, limit]
+  std::normal_distribution<> dist{0, 1.0 + limit / 3};
+  for (;;) {
+    double r = dist(rng);
+
+    if (!std::numeric_limits<Integral>::is_signed) {
+      r = std::abs(r);
+    }
+
+    if (r >= std::numeric_limits<Integral>::lowest() &&
+        r <= std::numeric_limits<Integral>::max()) {
+      return static_cast<Integral>(r);
+    }
+  }
 }
 
 template <class Real>
 Real arbitrarySizedReal(RngEngine& rng, std::size_t size) {
-  boost::uniform_real<Real> dist(-Real(size + 1.0), Real(size + 1.0));
+  std::uniform_real_distribution<Real> dist{-Real(size + 1.0),
+                                            Real(size + 1.0)};
   return dist(rng);
 }
 
@@ -123,8 +143,8 @@ std::vector<Real> shrinkReal(Real x) {
 
 template <class T>
 struct Arbitrary {
-  typedef boost::function<T(RngEngine&, std::size_t)> unGenType;
-  typedef boost::function<std::vector<T>(T)> shrinkType;
+  using unGenType = std::function<T(RngEngine&, std::size_t)>;
+  using shrinkType = std::function<std::vector<T>(T)>;
 
   static const unGenType unGen;
   static const shrinkType shrink;
@@ -160,9 +180,7 @@ const typename Arbitrary<T>::shrinkType Arbitrary<T>::shrink =
 // included specializations
 
 inline bool arbitraryBool(RngEngine& rng, std::size_t /*size*/) {
-  if (boost::uniform_smallint<int>(0, 1)(rng))
-    return true;
-  return false;
+  return std::uniform_int_distribution<int>(0, 1)(rng) != 0;
 }
 inline std::vector<bool> shrinkBool(bool x) {
   std::vector<bool> ret;
@@ -255,7 +273,7 @@ struct ArbitraryImpl<long double> {
 };
 
 inline char arbitraryChar(RngEngine& rng, std::size_t) {
-  boost::uniform_int<char> dist(0x20, 0x7f);
+  std::uniform_int_distribution<char> dist{0x20, 0x7f};
   return dist(rng);
 }
 inline std::vector<char> shrinkChar(char c) {
@@ -285,7 +303,7 @@ struct ArbitraryImpl<wchar_t> {
 
 template <class String>
 String arbitraryString(RngEngine& rng, std::size_t size) {
-  boost::uniform_int<std::size_t> dist(0, size);
+  std::uniform_int_distribution<std::size_t> dist{0, size};
   std::size_t n = dist(rng);
   String ret;
   ret.reserve(n);
