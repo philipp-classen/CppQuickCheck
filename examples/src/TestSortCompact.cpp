@@ -42,7 +42,9 @@ void selection_sort(InputIterator b,
   // 2) Swap the smallest value with the current iterator
   // 3) Continue until end of range
 
-  make_mistakes&& b != e ? ++b : b;
+  if (make_mistakes && b != e) {
+    ++b;
+  }
   for (InputIterator c = b; c != e; ++c) {
     std::swap(*(std::min_element(c, e)), *c);
   }

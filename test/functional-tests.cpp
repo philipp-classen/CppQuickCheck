@@ -31,12 +31,12 @@ using namespace cppqc;
 namespace FunctionalTestsFixtures {
 
 struct MinimalPassingProperty : cppqc::Property<bool> {
-  bool check(const bool& v) const override { return true; }
+  bool check(const bool& /*v*/) const override { return true; }
   std::string name() const override { return "Dummy check (will always pass)"; }
 };
 
 struct MinimalFailingProperty : cppqc::Property<bool> {
-  bool check(const bool& v) const override {
+  bool check(const bool& /*v*/) const override {
     return false;  // fails intentionally
   }
   std::string name() const override { return "Dummy check (will always fail)"; }

@@ -72,11 +72,11 @@ int main(int argc, char** argv) {
   }
 
   for (int i = 1; i < argc; ++i) {
-    std::map<std::string, boost::function<void()> >::const_iterator it =
-        sampleShrinkOutputCommand.find(argv[i]);
-    if (it != sampleShrinkOutputCommand.end())
+    auto it = sampleShrinkOutputCommand.find(argv[i]);
+    if (it != sampleShrinkOutputCommand.end()) {
       it->second();
-    else
+    } else {
       std::cout << "unrecognized type \"" << argv[i] << "\"\n";
+    }
   }
 }
