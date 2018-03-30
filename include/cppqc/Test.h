@@ -120,29 +120,33 @@ template <class T0, class T1, class T2, class T3, class T4>
 std::pair<std::size_t, typename Property<T0, T1, T2, T3, T4>::Input> doShrink(
     const Property<T0, T1, T2, T3, T4>& prop,
     const typename Property<T0, T1, T2, T3, T4>::Input& in,
-    std::chrono::duration<double> timeout) {
+    std::chrono::duration<double> timeout,
+    std::ostream& out = std::cout) {
   typedef typename Property<T0, T1, T2, T3, T4>::Input Input;
 
   std::size_t numShrinks = 0;
   Input shrunk = in;
   const auto start = std::chrono::steady_clock::now();
 
+  auto isTimeoutReached = [start, timeout]() {
+    const std::chrono::duration<double> elapsed =
+        std::chrono::steady_clock::now() - start;
+    return elapsed >= timeout;
+  };
+
   try {
   continueShrinking:
     std::vector<Input> shrinks = prop.shrinkInput(shrunk);
     for (Input input : shrinks) {
+      if (isTimeoutReached()) {
+        out << "Shrinking timed out...\n";
+        break;
+      }
+
       if (!prop.checkInput(input)) {
         shrunk = std::move(input);
         numShrinks++;
         goto continueShrinking;
-      }
-
-      // No progress was made. Check the time limit:
-      const std::chrono::duration<double> elapsed =
-          std::chrono::steady_clock::now() - start;
-      if (elapsed >= timeout) {
-        std::cout << "Shrinking timed out...\n";
-        break;
       }
     }
   } catch (...) {
@@ -231,7 +235,7 @@ Result quickCheckOutput(
         try {
           out << "Starting shrinking..." << std::flush;
           std::pair<std::size_t, Input> shrinkRes =
-              detail::doShrink(prop, in, shrinkTimeout);
+              detail::doShrink(prop, in, shrinkTimeout, out);
           numShrinks = shrinkRes.first;
           in = shrinkRes.second;
           out << "done\n";
