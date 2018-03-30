@@ -43,6 +43,8 @@ void checkShrinkExplosions(T initialValue, ShrinkFunction shrinkFunction) {
     for (const auto& x : current) {
       auto newValues = shrinkFunction(x);
       REQUIRE(newValues.size() < MAX_EXPECTED_ENTRIES);
+      REQUIRE(std::find(newValues.begin(), newValues.end(), x) ==
+              newValues.end());
 
       if (newValues.size() > worstCase.size()) {
         worstCase = std::move(newValues);
@@ -160,4 +162,95 @@ TEST_CASE(
     "long)",
     "[shrinkIntegral][unsigned long long]") {
   checkShrinkExplosions_IntegralType<unsigned long long>();
+}
+
+template <typename IntegralType>
+void checkShrinkExplosions_PairIntegral() {
+  std::vector<IntegralType> fixtures = {
+      IntegralType(1),
+      IntegralType(-1),
+      IntegralType(3),
+      IntegralType(-3),
+      IntegralType(100),
+      IntegralType(5555),
+      IntegralType(-5555),
+      std::numeric_limits<IntegralType>::min(),
+      std::numeric_limits<IntegralType>::max()};
+  for (IntegralType a : fixtures) {
+    for (IntegralType b : fixtures) {
+      checkShrinkExplosions<std::pair<IntegralType, IntegralType>>(
+          std::make_pair(a, b), [](std::pair<IntegralType, IntegralType> x) {
+            return Arbitrary<std::pair<IntegralType, IntegralType>>::shrink(x);
+          });
+    }
+  }
+}
+
+TEST_CASE("Number of elements should not explode during shrinking (pair: char)",
+          "[shrinkIntegral][char]") {
+  checkShrinkExplosions_PairIntegral<char>();
+}
+
+TEST_CASE(
+    "Number of elements should not explode during shrinking (pair: signed "
+    "char)",
+    "[shrinkIntegral][signed char]") {
+  checkShrinkExplosions_PairIntegral<signed char>();
+}
+
+TEST_CASE(
+    "Number of elements should not explode during shrinking (pair: unsigned "
+    "char)",
+    "[shrinkIntegral][unsigned char]") {
+  checkShrinkExplosions_PairIntegral<unsigned char>();
+}
+
+TEST_CASE(
+    "Number of elements should not explode during shrinking (pair: short)",
+    "[shrinkIntegral][short]") {
+  checkShrinkExplosions_PairIntegral<short>();
+}
+
+TEST_CASE(
+    "Number of elements should not explode during shrinking (pair: unsigned "
+    "short)",
+    "[shrinkIntegral][unsigned short]") {
+  checkShrinkExplosions_PairIntegral<unsigned short>();
+}
+
+TEST_CASE("Number of elements should not explode during shrinking (pair: int)",
+          "[shrinkIntegral][int]") {
+  checkShrinkExplosions_PairIntegral<int>();
+}
+
+TEST_CASE(
+    "Number of elements should not explode during shrinking (pair: unsigned "
+    "int)",
+    "[shrinkIntegral][unsigned int]") {
+  checkShrinkExplosions_PairIntegral<unsigned int>();
+}
+
+TEST_CASE("Number of elements should not explode during shrinking (pair: long)",
+          "[shrinkIntegral][long]") {
+  checkShrinkExplosions_PairIntegral<long>();
+}
+
+TEST_CASE(
+    "Number of elements should not explode during shrinking (pair: unsigned "
+    "long)",
+    "[shrinkIntegral][unsigned long]") {
+  checkShrinkExplosions_PairIntegral<unsigned long>();
+}
+
+TEST_CASE(
+    "Number of elements should not explode during shrinking (pair: long long)",
+    "[shrinkIntegral][long long]") {
+  checkShrinkExplosions_PairIntegral<long long>();
+}
+
+TEST_CASE(
+    "Number of elements should not explode during shrinking (pair: unsigned "
+    "long long)",
+    "[shrinkIntegral][unsigned long long]") {
+  checkShrinkExplosions_PairIntegral<unsigned long long>();
 }

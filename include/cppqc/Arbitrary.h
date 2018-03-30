@@ -262,12 +262,12 @@ inline std::vector<char> shrinkChar(char c) {
   const char possShrinks[] = {'a', 'b', 'c', 'A', 'B',  'C',
                               '1', '2', '3', ' ', '\n', '\0'};
   std::vector<char> ret;
-  for (auto& possShrink : possShrinks) {
+  for (auto possShrink : possShrinks) {
     if (possShrink < c)
       ret.push_back(possShrink);
   }
   if (isupper(c) && std::find(possShrinks, possShrinks + sizeof(possShrinks),
-                              tolower(c)) != possShrinks + sizeof(possShrinks))
+                              tolower(c)) == possShrinks + sizeof(possShrinks))
     ret.push_back(tolower(c));
   return ret;
 }
