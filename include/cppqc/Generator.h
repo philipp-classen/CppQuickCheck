@@ -634,11 +634,7 @@ class ElementsGenerator {
   }
 
   std::vector<T> shrink(const T&) {
-    std::vector<T> ret;
-    ret.reserve(m_last_index);
-    for (std::size_t i = 0; i != m_last_index; ++i)
-      ret.push_back(m_elems[i]);
-    return ret;
+    return {};
   }
 
  private:
