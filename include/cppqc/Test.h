@@ -122,7 +122,7 @@ std::pair<std::size_t, typename Property<T0, T1, T2, T3, T4>::Input> doShrink(
     const typename Property<T0, T1, T2, T3, T4>::Input& in,
     std::chrono::duration<double> timeout,
     std::ostream& out = std::cout) {
-  typedef typename Property<T0, T1, T2, T3, T4>::Input Input;
+  using Input = typename Property<T0, T1, T2, T3, T4>::Input;
 
   std::size_t numShrinks = 0;
   Input shrunk = in;
@@ -193,7 +193,7 @@ Result quickCheckOutput(
     std::size_t maxSize = 0,
     std::chrono::duration<double> shrinkTimeout = DEFAULT_SHRINK_TIMEOUT,
     SeedType seed = USE_DEFAULT_SEED) {
-  typedef typename Property<T0, T1, T2, T3, T4>::Input Input;
+  using Input = typename Property<T0, T1, T2, T3, T4>::Input;
 
   out << "* Checking property \"" << prop.name() << "\" ..." << std::endl;
 

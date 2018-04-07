@@ -41,7 +41,7 @@
 
 namespace cppqc {
 
-typedef std::mt19937 RngEngine;
+using RngEngine = std::mt19937;
 
 template <class T>
 struct Arbitrary;

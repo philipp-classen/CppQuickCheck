@@ -346,8 +346,8 @@ PairType arbitraryPair(RngEngine& rng, std::size_t size) {
 }
 template <class PairType>
 std::vector<PairType> shrinkPair(const PairType& x) {
-  typedef typename PairType::first_type FirstType;
-  typedef typename PairType::second_type SecondType;
+  using FirstType = typename PairType::first_type;
+  using SecondType = typename PairType::second_type;
   std::vector<FirstType> shrinks1 = Arbitrary<FirstType>::shrink(x.first);
   std::vector<SecondType> shrinks2 = Arbitrary<SecondType>::shrink(x.second);
   std::vector<PairType> ret;
