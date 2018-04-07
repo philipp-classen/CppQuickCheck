@@ -350,7 +350,7 @@ namespace pretty_print
 
     struct custom_delims_base
     {
-        virtual ~custom_delims_base() { }
+	virtual ~custom_delims_base() = default;
         virtual std::ostream & stream(::std::ostream &) = 0;
         virtual std::wostream & stream(::std::wostream &) = 0;
     };
