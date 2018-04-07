@@ -45,7 +45,7 @@ class PropertyBase {
   // (However, in practice, gcc and clang produce useful defaults.)
   virtual std::string name() const { return typeid(*this).name(); }
 
-  virtual ~PropertyBase() {}
+  virtual ~PropertyBase() = default;
 };
 
 template <class T0,

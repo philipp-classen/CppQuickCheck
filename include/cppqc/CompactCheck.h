@@ -105,7 +105,7 @@ class CompactCheck : public Property<T...> {
   std::string name() const { return m_name.empty() ? "no-name" : m_name; }
 
  public:
-  CompactCheck() {}
+  CompactCheck() = default;
 
   CompactCheck(const Generator<T>&... g) : Property<T...>(g...) {}
 

@@ -76,7 +76,7 @@ namespace detail {
 
 template <class T>
 struct GenConcept {
-  virtual ~GenConcept() {}
+  virtual ~GenConcept() = default;
   virtual T unGen(RngEngine&, std::size_t) = 0;
   virtual std::vector<T> shrink(const T&) = 0;
   virtual GenConcept* clone() const = 0;
@@ -84,7 +84,7 @@ struct GenConcept {
 
 template <class T>
 struct StatelessGenConcept : GenConcept<T> {
-  virtual ~StatelessGenConcept() {}
+  virtual ~StatelessGenConcept() = default;;
   virtual T unGen(RngEngine&, std::size_t) override = 0;
   virtual std::vector<T> shrink(const T&) override = 0;
   virtual StatelessGenConcept* clone() const override = 0;
