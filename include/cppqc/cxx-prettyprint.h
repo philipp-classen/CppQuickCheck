@@ -360,12 +360,12 @@ namespace pretty_print
     {
         custom_delims_wrapper(const T & t_) : t(t_) { }
 
-        std::ostream & stream(std::ostream & s)
+	std::ostream & stream(std::ostream & s) override
         {
             return s << print_container_helper<T, char, std::char_traits<char>, Delims>(t);
         }
 
-        std::wostream & stream(std::wostream & s)
+	std::wostream & stream(std::wostream & s) override
         {
             return s << print_container_helper<T, wchar_t, std::char_traits<wchar_t>, Delims>(t);
         }

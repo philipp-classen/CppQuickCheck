@@ -84,10 +84,10 @@ struct GenConcept {
 
 template <class T>
 struct StatelessGenConcept : GenConcept<T> {
-  virtual ~StatelessGenConcept() = default;;
-  virtual T unGen(RngEngine&, std::size_t) override = 0;
-  virtual std::vector<T> shrink(const T&) override = 0;
-  virtual StatelessGenConcept* clone() const override = 0;
+  virtual ~StatelessGenConcept() = default;
+  T unGen(RngEngine&, std::size_t) override = 0;
+  std::vector<T> shrink(const T&) override = 0;
+  StatelessGenConcept* clone() const override = 0;
 };
 }  // namespace detail
 

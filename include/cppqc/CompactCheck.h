@@ -102,7 +102,7 @@ class CompactCheck : public Property<T...> {
     return m_classifyFnc.apply(std::string(), v...);
   }
 
-  std::string name() const { return m_name.empty() ? "no-name" : m_name; }
+  std::string name() const override { return m_name.empty() ? "no-name" : m_name; }
 
  public:
   CompactCheck() = default;
