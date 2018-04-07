@@ -55,7 +55,7 @@ template <class T0,
           class T4 = detail::null_type>
 class Property : public PropertyBase {
  public:
-  typedef std::tuple<T0, T1, T2, T3, T4> Input;
+  using Input = std::tuple<T0, T1, T2, T3, T4>;
 
   Property(const Generator<T0>& g0 = Arbitrary<T0>(),
            const Generator<T1>& g1 = Arbitrary<T1>(),
@@ -117,7 +117,7 @@ class Property<T0,
                detail::null_type,
                detail::null_type> : public PropertyBase {
  public:
-  typedef std::tuple<T0> Input;
+  using Input = std::tuple<T0>;
 
   Property(const Generator<T0>& g0 = Arbitrary<T0>()) : m_gen(tupleOf(g0)) {}
 
@@ -148,7 +148,7 @@ template <class T0, class T1>
 class Property<T0, T1, detail::null_type, detail::null_type, detail::null_type>
     : public PropertyBase {
  public:
-  typedef std::tuple<T0, T1> Input;
+  using Input = std::tuple<T0, T1>;
 
   Property(const Generator<T0>& g0 = Arbitrary<T0>(),
            const Generator<T1>& g1 = Arbitrary<T1>())
@@ -185,7 +185,7 @@ template <class T0, class T1, class T2>
 class Property<T0, T1, T2, detail::null_type, detail::null_type>
     : public PropertyBase {
  public:
-  typedef std::tuple<T0, T1, T2> Input;
+  using Input = std::tuple<T0, T1, T2>;
 
   Property(const Generator<T0>& g0 = Arbitrary<T0>(),
            const Generator<T1>& g1 = Arbitrary<T1>(),
@@ -224,7 +224,7 @@ class Property<T0, T1, T2, detail::null_type, detail::null_type>
 template <class T0, class T1, class T2, class T3>
 class Property<T0, T1, T2, T3, detail::null_type> : public PropertyBase {
  public:
-  typedef std::tuple<T0, T1, T2, T3> Input;
+  using Input = std::tuple<T0, T1, T2, T3>;
 
   Property(const Generator<T0>& g0 = Arbitrary<T0>(),
            const Generator<T1>& g1 = Arbitrary<T1>(),

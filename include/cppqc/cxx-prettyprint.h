@@ -396,8 +396,8 @@ namespace pretty_print
     template<typename T>
     struct array_wrapper_n
     {
-        typedef const T * const_iterator;
-        typedef T value_type;
+	using const_iterator = const T *;
+	using value_type = T;
 
         array_wrapper_n(const T * const a, size_t n) : _array(a), _n(n) { }
         inline const_iterator begin() const { return _array; }
@@ -415,8 +415,8 @@ namespace pretty_print
     template <typename T>
     struct bucket_print_wrapper
     {
-        typedef typename T::const_local_iterator const_iterator;
-        typedef typename T::size_type size_type;
+	using const_iterator = typename T::const_local_iterator;
+	using size_type = typename T::size_type;
 
         const_iterator begin() const
         {
