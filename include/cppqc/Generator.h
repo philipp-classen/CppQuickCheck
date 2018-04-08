@@ -632,9 +632,7 @@ class ElementsGenerator {
     return m_elems[m_last_index];
   }
 
-  std::vector<T> shrink(const T&) {
-    return {};
-  }
+  std::vector<T> shrink(const T&) { return {}; }
 
  private:
   std::vector<T> m_elems;
