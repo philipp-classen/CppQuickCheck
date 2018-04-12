@@ -15,7 +15,7 @@ You can find examples in 'examples/src'.
 ## BACKGROUND
 
 CppQuickCheck is inspired and based on the
-[QuickCheck](http://code.haskell.org/QuickCheck/) library for
+[QuickCheck](https://github.com/nick8325/quickcheck) library for
 Haskell. CppQuickCheck differs in some aspects of the implementation and
 interface (as well as being written in C++ instead of Haskell), but tries to
 maintain similar functionality to the QuickCheck library.
