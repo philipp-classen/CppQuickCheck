@@ -38,6 +38,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+#include <ctime>
 
 namespace cppqc {
 
@@ -233,7 +234,7 @@ std::vector<T> sample(const Generator<T>& g,
   if (num == 0)
     num = 20;
   if (seed == 0)
-    seed = time(nullptr);
+    seed = std::time(nullptr);
   RngEngine rng(seed);
   std::vector<T> ret;
   ret.reserve(num);
@@ -254,7 +255,7 @@ void sampleOutput(const Generator<T>& g,
   if (num == 0)
     num = 20;
   if (seed == 0)
-    seed = time(nullptr);
+    seed = std::time(nullptr);
   RngEngine rng(seed);
   try {
     for (std::size_t i = 0; i < num; ++i) {
@@ -276,7 +277,7 @@ std::vector<std::pair<T, std::vector<T>>> sampleShrink(const Generator<T>& g,
   if (num == 0)
     num = 20;
   if (seed == 0)
-    seed = time(nullptr);
+    seed = std::time(nullptr);
   RngEngine rng(seed);
   std::vector<std::pair<T, std::vector<T>>> ret;
   ret.reserve(num);
@@ -301,7 +302,7 @@ void sampleShrinkOutput(const Generator<T>& g,
   if (num == 0)
     num = 20;
   if (seed == 0)
-    seed = time(nullptr);
+    seed = std::time(nullptr);
   RngEngine rng(seed);
   try {
     for (std::size_t i = 0; i < num; ++i) {

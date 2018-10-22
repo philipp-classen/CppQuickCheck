@@ -27,7 +27,6 @@
 #include "cppqc/CompactCheck.h"
 
 #include <algorithm>
-#include <boost/static_assert.hpp>
 #include <iterator>
 #include <sstream>
 

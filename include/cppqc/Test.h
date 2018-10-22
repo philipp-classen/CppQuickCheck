@@ -173,7 +173,7 @@ inline SeedType resolveSeed(SeedType originalSeed = USE_DEFAULT_SEED) {
         throw std::invalid_argument{err.str()};
       }
     } else {
-      return static_cast<SeedType>(time(0));
+      return static_cast<SeedType>(std::time(0));
     }
   } else {
     return originalSeed;
