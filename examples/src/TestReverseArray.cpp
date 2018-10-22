@@ -25,8 +25,8 @@
 
 #include "cppqc.h"
 
+#include <array>
 #include <algorithm>
-#include <boost/static_assert.hpp>
 
 const int ArraySize = 5;
 

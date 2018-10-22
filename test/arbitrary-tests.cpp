@@ -26,6 +26,7 @@
 #include "catch.hpp"
 #include "cppqc/Arbitrary.h"
 
+#include <array>
 #include <random>
 #include <unordered_set>
 

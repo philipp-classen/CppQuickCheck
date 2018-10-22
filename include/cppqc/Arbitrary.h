@@ -30,8 +30,40 @@
 
 #include <limits>
 #include <random>
+#include <type_traits>
 
 namespace cppqc {
+
+/*
+ * Type trait for checking if a type is found in a parameter pack.
+ */
+template <class T, class... Us>
+struct IsOneOf;
+
+template <class T, class U, class... Us>
+struct IsOneOf<T, U, Us...> {
+    static constexpr bool value = IsOneOf<T, Us...>::value;
+};
+
+template <class T, class... Us>
+struct IsOneOf<T, T, Us...> {
+    static constexpr bool value = true;
+};
+
+template <class T>
+struct IsOneOf<T> {
+    static constexpr bool value = false;
+};
+
+/*
+ * Type trait for checking if a type can be used as the template parameter of
+ * std::uniform_int_distribution.
+ */
+template <class T>
+struct IntDistributionSupported {
+    static constexpr bool value =
+        IsOneOf<T, short, int, long, long long, unsigned short, unsigned int, unsigned long, unsigned long long>::value;
+};
 
 // default generators
 
@@ -43,7 +75,8 @@ namespace cppqc {
  */
 template <class Integral>
 Integral arbitraryBoundedIntegral(RngEngine& rng, std::size_t /*size*/) {
-  std::uniform_int_distribution<Integral> dist{
+  using DistributionType = typename std::conditional<IntDistributionSupported<Integral>::value, Integral, int>::type;
+  std::uniform_int_distribution<DistributionType> dist{
       std::numeric_limits<Integral>::lowest(),
       std::numeric_limits<Integral>::max()};
   return dist(rng);
@@ -273,8 +306,8 @@ struct ArbitraryImpl<long double> {
 };
 
 inline char arbitraryChar(RngEngine& rng, std::size_t) {
-  std::uniform_int_distribution<char> dist{0x20, 0x7f};
-  return dist(rng);
+  std::uniform_int_distribution<int> dist{0x20, 0x7f};
+  return static_cast<char>(dist(rng));
 }
 inline std::vector<char> shrinkChar(char c) {
   const char possShrinks[] = {'a', 'b', 'c', 'A', 'B',  'C',
