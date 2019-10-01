@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2010, Gregory Rogers All rights reserved.
+ * Copyright (c) 2019, Gregory Rogers and Philipp Claßen
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -208,9 +209,9 @@ Result quickCheckOutput(
   seed = detail::resolveSeed(seed);
   RngEngine rng{seed};
   while (numSuccess < maxSuccess) {
+    std::size_t size = (numSuccess * maxSize + numDiscarded) / maxSuccess;
+    Input in = prop.generateInput(rng, size);
     try {
-      std::size_t size = (numSuccess * maxSize + numDiscarded) / maxSuccess;
-      Input in = prop.generateInput(rng, size);
       bool success = false;
       try {
         success = prop.checkInput(in);

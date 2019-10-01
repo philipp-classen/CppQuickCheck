@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2010, Gregory Rogers All rights reserved.
+ * Copyright (c) 2019, Gregory Rogers and Philipp Claßen
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,7 +35,7 @@ namespace cppqc {
 
 // The default implementation falls back to the std::ofstream
 // implementation. Note that because of the usage of "cxx-prettyprint",
-// it can handle understands C++ containers, pairs and tuples.
+// it can handle C++ containers, pairs and tuples.
 //
 // Strings are quoted to improve readability.
 //

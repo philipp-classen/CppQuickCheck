@@ -7,8 +7,8 @@ else()
 endif()
 
 
-add_library(cppqc SHARED src/Arbitrary.cpp)
-target_include_directories(cppqc PUBLIC include)
+add_library(cppqc INTERFACE)
+target_include_directories(cppqc INTERFACE include/)
 
 option(CPPQC_USE_BOOST "Use Boost, allowing to build some of the examples." OFF)
 if(CPPQC_USE_BOOST)
@@ -19,7 +19,6 @@ add_subdirectory(examples)
 
 install(DIRECTORY "include/" DESTINATION "include"
     PATTERN ".*" EXCLUDE)
-install(TARGETS cppqc DESTINATION "lib")
 
 # "catch" based unit tests
 enable_testing()
@@ -30,8 +29,8 @@ add_executable(
   test/shrink-explosion-protection.cpp
   test/compact-check-tests.cpp
   test/functional-tests.cpp
-)
-target_link_libraries(all-catch-tests PRIVATE cppqc)
+  )
+target_include_directories(all-catch-tests PRIVATE include/)
 add_test(all-catch-tests all-catch-tests)
 
 # workaround to force CMake to build test executable before running the test

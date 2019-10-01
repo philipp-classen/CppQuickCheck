@@ -1,0 +1,18 @@
+# Uses Quom (https://github.com/Viatorus/quom) to generate a single header.
+#
+# Requirement: Docker
+# Command (run in the project root):
+#
+#   sudo docker build -t cppqc-quom -f Dockerfile.singleheader . && sudo docker run --mount type=bind,source="$(pwd)",target=/home/non-root/src,readonly --rm -it cppqc-quom bash -c 'python -m quom src/include/cppqc.h cppqc.h > /dev/null && cat cppqc.h' | tee single-include/cppqc.h
+#
+# Output: single-include/cppqc.h
+
+FROM python:3.7@sha256:0f0e991a97426db345ca7ec59fa911c8ed27ced27c88ae9966b452bcc6438c2f
+
+RUN groupadd -r non-root && useradd --create-home --no-log-init -r -g non-root non-root
+USER non-root
+WORKDIR /home/non-root
+
+RUN echo "quom==0.3 --hash=sha256:22d76f794bf0bcada28881749e79b32bd1ac5b9452fe5bc073cb456b2206db36" > requirements.txt && \
+    pip install --user --no-deps -r requirements.txt && \
+    mkdir src

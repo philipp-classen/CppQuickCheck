@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2016, Vladimir Strisovsky All rights reserved.
+ * Copyright (c) 2019, Vladimir Strisovsky and Philipp Claßen
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,6 +28,7 @@
 #include "cppqc/CompactCheck.h"
 
 #include <algorithm>
+#include <iostream>
 #include <iterator>
 #include <sstream>
 

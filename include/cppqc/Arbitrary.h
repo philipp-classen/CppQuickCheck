@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2010, Gregory Rogers All rights reserved.
+ * Copyright (c) 2019, Gregory Rogers and Philipp Claßen
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -184,261 +185,194 @@ std::vector<Real> shrinkReal(Real x) {
 }
 
 template <class T>
+struct ArbitraryImpl;
+
+// specialize Arbitrary and implement the members:
+//     T unGen(RngEngine&, std::size_t);
+//     std::vector<T> shrink(T);
+//
+// If they do not and they try to use Arbitrary<TheirClass>, a compile error
+// will result.
+template <class T>
 struct Arbitrary {
-  using unGenType = std::function<T(RngEngine&, std::size_t)>;
-  using shrinkType = std::function<std::vector<T>(T)>;
+  static T unGen(RngEngine& rng, std::size_t size) {
+    return ArbitraryImpl<T>::unGen(rng, size);
+  }
 
-  static const unGenType unGen;
-  static const shrinkType shrink;
+  template <typename U>
+  static std::vector<T> shrink(U&& x) {
+    return ArbitraryImpl<T>::shrink(std::forward<U>(x));
+  }
 };
 
-/*
- * specialize ArbitraryImpl and implement the members:
- *     static const Arbitrary<T>::unGenType unGen;
- *     static const Arbitrary<T>::shrinkType shrink;
- */
-template <class T>
-struct ArbitraryImpl {
-  // no default implementation - users must specialize ArbitraryImpl
-  // and give an implementation of unGen and shrink. If they do not
-  // and they try to use Arbitrary<TheirClass>, a compile error will result.
-};
-
-// Note: The call is wrapped in a function to avoid issues
-//       with static ordering when ArbitraryImpl is defined
-//       in another compilation unit. Do not simplify it
-//       by replacing it with an assignment.
-template <class T>
-const typename Arbitrary<T>::unGenType Arbitrary<T>::unGen =
-    [](RngEngine& rng, std::size_t size) {
-      return ArbitraryImpl<T>::unGen(rng, size);
-    };
-
-// (function call is needed: see above)
-template <class T>
-const typename Arbitrary<T>::shrinkType Arbitrary<T>::shrink =
-    [](const T& v) { return ArbitraryImpl<T>::shrink(v); };
-
-// included specializations
-
-inline bool arbitraryBool(RngEngine& rng, std::size_t /*size*/) {
-  return std::uniform_int_distribution<int>(0, 1)(rng) != 0;
-}
-inline std::vector<bool> shrinkBool(bool x) {
-  std::vector<bool> ret;
-  if (x)
-    ret.push_back(false);
-  return ret;
-}
 template <>
 struct ArbitraryImpl<bool> {
-  static const Arbitrary<bool>::unGenType unGen;
-  static const Arbitrary<bool>::shrinkType shrink;
-};
-
-template <>
-struct ArbitraryImpl<signed char> {
-  static const Arbitrary<signed char>::unGenType unGen;
-  static const Arbitrary<signed char>::shrinkType shrink;
-};
-
-template <>
-struct ArbitraryImpl<unsigned char> {
-  static const Arbitrary<unsigned char>::unGenType unGen;
-  static const Arbitrary<unsigned char>::shrinkType shrink;
-};
-
-template <>
-struct ArbitraryImpl<signed short> {
-  static const Arbitrary<signed short>::unGenType unGen;
-  static const Arbitrary<signed short>::shrinkType shrink;
-};
-
-template <>
-struct ArbitraryImpl<unsigned short> {
-  static const Arbitrary<unsigned short>::unGenType unGen;
-  static const Arbitrary<unsigned short>::shrinkType shrink;
-};
-
-template <>
-struct ArbitraryImpl<signed int> {
-  static const Arbitrary<signed int>::unGenType unGen;
-  static const Arbitrary<signed int>::shrinkType shrink;
-};
-
-template <>
-struct ArbitraryImpl<unsigned int> {
-  static const Arbitrary<unsigned int>::unGenType unGen;
-  static const Arbitrary<unsigned int>::shrinkType shrink;
-};
-
-template <>
-struct ArbitraryImpl<signed long> {
-  static const Arbitrary<signed long>::unGenType unGen;
-  static const Arbitrary<signed long>::shrinkType shrink;
-};
-
-template <>
-struct ArbitraryImpl<unsigned long> {
-  static const Arbitrary<unsigned long>::unGenType unGen;
-  static const Arbitrary<unsigned long>::shrinkType shrink;
-};
-
-template <>
-struct ArbitraryImpl<signed long long> {
-  static const Arbitrary<signed long long>::unGenType unGen;
-  static const Arbitrary<signed long long>::shrinkType shrink;
-};
-
-template <>
-struct ArbitraryImpl<unsigned long long> {
-  static const Arbitrary<unsigned long long>::unGenType unGen;
-  static const Arbitrary<unsigned long long>::shrinkType shrink;
-};
-
-template <>
-struct ArbitraryImpl<float> {
-  static const Arbitrary<float>::unGenType unGen;
-  static const Arbitrary<float>::shrinkType shrink;
-};
-
-template <>
-struct ArbitraryImpl<double> {
-  static const Arbitrary<double>::unGenType unGen;
-  static const Arbitrary<double>::shrinkType shrink;
-};
-
-template <>
-struct ArbitraryImpl<long double> {
-  static const Arbitrary<long double>::unGenType unGen;
-  static const Arbitrary<long double>::shrinkType shrink;
-};
-
-inline char arbitraryChar(RngEngine& rng, std::size_t) {
-  std::uniform_int_distribution<int> dist{0x20, 0x7f};
-  return static_cast<char>(dist(rng));
-}
-inline std::vector<char> shrinkChar(char c) {
-  const char possShrinks[] = {'a', 'b', 'c', 'A', 'B',  'C',
-                              '1', '2', '3', ' ', '\n', '\0'};
-  std::vector<char> ret;
-  for (auto possShrink : possShrinks) {
-    if (possShrink < c)
-      ret.push_back(possShrink);
+  static bool unGen(RngEngine& rng, std::size_t /*size*/) {
+    return std::uniform_int_distribution<int>(0, 1)(rng) != 0;
   }
-  if (isupper(c) && std::find(possShrinks, possShrinks + sizeof(possShrinks),
-                              tolower(c)) == possShrinks + sizeof(possShrinks))
-    ret.push_back(tolower(c));
-  return ret;
-}
+
+  static std::vector<bool> shrink(bool x) {
+    std::vector<bool> ret;
+    if (x)
+      ret.push_back(false);
+    return ret;
+  }
+};
+
+namespace detail {
+template <typename T>
+struct ArbitrarySizedBoundedIntegral {
+  static T unGen(RngEngine& rng, std::size_t size) {
+    return arbitrarySizedBoundedIntegral<T>(rng, size);
+  }
+  static std::vector<T> shrink(T x) { return shrinkIntegral(x); }
+};
+
+template <typename T>
+struct ArbitrarySizedReal {
+  static T unGen(RngEngine& rng, std::size_t size) {
+    return arbitrarySizedReal<T>(rng, size);
+  }
+  static std::vector<T> shrink(T x) { return shrinkReal(x); }
+};
+
+template <typename String>
+struct ArbitraryString {
+  static String unGen(RngEngine& rng, std::size_t size) {
+    String ret;
+    std::uniform_int_distribution<std::size_t> dist{0, size};
+    std::size_t n = dist(rng);
+    ret.reserve(n);
+    while (n-- > 0)
+      ret.push_back(Arbitrary<typename String::value_type>::unGen(rng, size));
+    return ret;
+  }
+  static std::vector<String> shrink(const String& x) {
+    std::vector<String> ret;
+    ret.reserve(x.size());
+    for (auto it = x.begin(); it != x.end(); ++it) {
+      ret.push_back(String());
+      ret.back().reserve(x.size() - 1);
+      ret.back().insert(ret.back().end(), x.begin(), it);
+      ret.back().insert(ret.back().end(), it + 1, x.end());
+    }
+    return ret;
+  }
+};
+
+template <typename PairType>
+struct ArbitraryPair {
+  static PairType unGen(RngEngine& rng, std::size_t size) {
+    return PairType(
+        Arbitrary<typename PairType::first_type>::unGen(rng, size),
+        Arbitrary<typename PairType::second_type>::unGen(rng, size));
+  }
+  static std::vector<PairType> shrink(const PairType& x) {
+    std::vector<PairType> ret;
+    using FirstType = typename PairType::first_type;
+    using SecondType = typename PairType::second_type;
+    std::vector<FirstType> shrinks1 = Arbitrary<FirstType>::shrink(x.first);
+    std::vector<SecondType> shrinks2 = Arbitrary<SecondType>::shrink(x.second);
+    ret.reserve(shrinks1.size() + shrinks2.size());
+    for (auto it = shrinks1.begin(); it != shrinks1.end(); ++it) {
+      ret.push_back(PairType(*it, x.second));
+    }
+    for (auto it = shrinks2.begin(); it != shrinks2.end(); ++it) {
+      ret.push_back(PairType(x.first, *it));
+    }
+    return ret;
+  }
+};
+
+}  // namespace detail
+
+// builtin integer types
+template <>
+struct ArbitraryImpl<signed char>
+    : detail::ArbitrarySizedBoundedIntegral<signed char> {};
+template <>
+struct ArbitraryImpl<unsigned char>
+    : detail::ArbitrarySizedBoundedIntegral<unsigned char> {};
+template <>
+struct ArbitraryImpl<signed short>
+    : detail::ArbitrarySizedBoundedIntegral<signed short> {};
+template <>
+struct ArbitraryImpl<unsigned short>
+    : detail::ArbitrarySizedBoundedIntegral<unsigned short> {};
+template <>
+struct ArbitraryImpl<signed int>
+    : detail::ArbitrarySizedBoundedIntegral<signed int> {};
+template <>
+struct ArbitraryImpl<unsigned int>
+    : detail::ArbitrarySizedBoundedIntegral<unsigned int> {};
+template <>
+struct ArbitraryImpl<signed long>
+    : detail::ArbitrarySizedBoundedIntegral<signed long> {};
+template <>
+struct ArbitraryImpl<unsigned long>
+    : detail::ArbitrarySizedBoundedIntegral<unsigned long> {};
+template <>
+struct ArbitraryImpl<signed long long>
+    : detail::ArbitrarySizedBoundedIntegral<signed long long> {};
+template <>
+struct ArbitraryImpl<unsigned long long>
+    : detail::ArbitrarySizedBoundedIntegral<unsigned long long> {};
+
+// builtin floating point types
+template <>
+struct ArbitraryImpl<float> : detail::ArbitrarySizedReal<float> {};
+template <>
+struct ArbitraryImpl<double> : detail::ArbitrarySizedReal<double> {};
+template <>
+struct ArbitraryImpl<long double> : detail::ArbitrarySizedReal<long double> {};
+
+// builtin character types
 template <>
 struct ArbitraryImpl<char> {
-  static const Arbitrary<char>::unGenType unGen;
-  static const Arbitrary<char>::shrinkType shrink;
+  static char unGen(RngEngine& rng, std::size_t /*size*/) {
+    std::uniform_int_distribution<int> dist{0x20, 0x7f};
+    return static_cast<char>(dist(rng));
+  }
+  static std::vector<char> shrink(char c) {
+    std::vector<char> ret;
+    constexpr char possShrinks[] = {'a', 'b', 'c', 'A', 'B',  'C',
+                                    '1', '2', '3', ' ', '\n', '\0'};
+    for (auto possShrink : possShrinks) {
+      if (possShrink < c)
+        ret.push_back(possShrink);
+    }
+    if (isupper(c) &&
+        std::find(possShrinks, possShrinks + sizeof(possShrinks), tolower(c)) ==
+            possShrinks + sizeof(possShrinks)) {
+      ret.push_back(tolower(c));
+    }
+    return ret;
+  }
 };
 
 template <>
-struct ArbitraryImpl<wchar_t> {
-  static const Arbitrary<wchar_t>::unGenType unGen;
-  static const Arbitrary<wchar_t>::shrinkType shrink;
+struct ArbitraryImpl<wchar_t> : detail::ArbitrarySizedBoundedIntegral<wchar_t> {
 };
 
-template <class String>
-String arbitraryString(RngEngine& rng, std::size_t size) {
-  std::uniform_int_distribution<std::size_t> dist{0, size};
-  std::size_t n = dist(rng);
-  String ret;
-  ret.reserve(n);
-  while (n-- > 0)
-    ret.push_back(Arbitrary<typename String::value_type>::unGen(rng, size));
-  return ret;
-}
-template <class String>
-std::vector<String> shrinkString(const String& x) {
-  std::vector<String> ret;
-  ret.reserve(x.size());
-  for (auto it = x.begin(); it != x.end(); ++it) {
-    ret.push_back(String());
-    ret.back().reserve(x.size() - 1);
-    ret.back().insert(ret.back().end(), x.begin(), it);
-    ret.back().insert(ret.back().end(), it + 1, x.end());
-  }
-  return ret;
-}
+// builtin string types
 template <class CharT, class Traits, class Alloc>
-struct ArbitraryImpl<std::basic_string<CharT, Traits, Alloc>> {
-  static const typename Arbitrary<
-      std::basic_string<CharT, Traits, Alloc>>::unGenType unGen;
-  static const typename Arbitrary<
-      std::basic_string<CharT, Traits, Alloc>>::shrinkType shrink;
-};
-template <class CharT, class Traits, class Alloc>
-const typename Arbitrary<std::basic_string<CharT, Traits, Alloc>>::unGenType
-    ArbitraryImpl<std::basic_string<CharT, Traits, Alloc>>::unGen =
-        arbitraryString<std::basic_string<CharT, Traits, Alloc>>;
-template <class CharT, class Traits, class Alloc>
-const typename Arbitrary<std::basic_string<CharT, Traits, Alloc>>::shrinkType
-    ArbitraryImpl<std::basic_string<CharT, Traits, Alloc>>::shrink =
-        shrinkString<std::basic_string<CharT, Traits, Alloc>>;
+struct ArbitraryImpl<std::basic_string<CharT, Traits, Alloc>>
+    : detail::ArbitraryString<std::basic_string<CharT, Traits, Alloc>> {};
 
-template <class PairType>
-PairType arbitraryPair(RngEngine& rng, std::size_t size) {
-  return PairType(Arbitrary<typename PairType::first_type>::unGen(rng, size),
-                  Arbitrary<typename PairType::second_type>::unGen(rng, size));
-}
-template <class PairType>
-std::vector<PairType> shrinkPair(const PairType& x) {
-  using FirstType = typename PairType::first_type;
-  using SecondType = typename PairType::second_type;
-  std::vector<FirstType> shrinks1 = Arbitrary<FirstType>::shrink(x.first);
-  std::vector<SecondType> shrinks2 = Arbitrary<SecondType>::shrink(x.second);
-  std::vector<PairType> ret;
-  ret.reserve(shrinks1.size() + shrinks2.size());
-  for (auto it = shrinks1.begin(); it != shrinks1.end(); ++it) {
-    ret.push_back(PairType(*it, x.second));
-  }
-  for (auto it = shrinks2.begin(); it != shrinks2.end(); ++it) {
-    ret.push_back(PairType(x.first, *it));
-  }
-  return ret;
-}
+// std::pair related types
 template <class T1, class T2>
-struct ArbitraryImpl<std::pair<T1, T2>> {
-  static const typename Arbitrary<std::pair<T1, T2>>::unGenType unGen;
-  static const typename Arbitrary<std::pair<T1, T2>>::shrinkType shrink;
-};
-template <class T1, class T2>
-const typename Arbitrary<std::pair<T1, T2>>::unGenType
-    ArbitraryImpl<std::pair<T1, T2>>::unGen = arbitraryPair<std::pair<T1, T2>>;
-template <class T1, class T2>
-const typename Arbitrary<std::pair<T1, T2>>::shrinkType
-    ArbitraryImpl<std::pair<T1, T2>>::shrink = shrinkPair<std::pair<T1, T2>>;
+struct ArbitraryImpl<std::pair<T1, T2>>
+    : detail::ArbitraryPair<std::pair<T1, T2>> {};
 
-template <typename T>
+template <class T>
 struct ArbitraryImpl<std::vector<T>> {
-  static const typename Arbitrary<std::vector<T>>::unGenType unGen;
-  static const typename Arbitrary<std::vector<T>>::shrinkType shrink;
-};
+  static std::vector<T> unGen(RngEngine& rng, std::size_t size) {
+    return listOf<T>().unGen(rng, size);
+  }
 
-template <typename T>
-const typename Arbitrary<std::vector<T>>::unGenType
-    ArbitraryImpl<std::vector<T>>::unGen =
-        [](RngEngine& rng, std::size_t size) {
-          const auto& vectorGenerator = listOf<T>();
-          return vectorGenerator.unGen(rng, size);
-        };
-
-template <typename T>
-const typename Arbitrary<std::vector<T>>::shrinkType
-    ArbitraryImpl<std::vector<T>>::shrink = [](const std::vector<T>& v) {
-      const auto& vectorGenerator = listOf<T>();
-      return vectorGenerator.shrink(v);
-    };
-
-template <typename T, std::size_t N>
-struct ArbitraryImpl<std::array<T, N>> {
-  static const typename Arbitrary<std::array<T, N>>::unGenType unGen;
-  static const typename Arbitrary<std::array<T, N>>::shrinkType shrink;
+  static std::vector<std::vector<T>> shrink(const std::vector<T>& v) {
+    return listOf<T>().shrink(v);
+  }
 };
 
 /// Note: N is the fixed size of the array.
@@ -446,21 +380,16 @@ struct ArbitraryImpl<std::array<T, N>> {
 ///
 /// If "size" is increased, the output array will still contain
 /// N elements, but each element will, in general, be more complex.
-template <typename T, std::size_t N>
-const typename Arbitrary<std::array<T, N>>::unGenType
-    ArbitraryImpl<std::array<T, N>>::unGen =
-        [](RngEngine& rng, std::size_t size) {
-          const auto& arrayGenerator = arrayOf<T, N>();
-          return arrayGenerator.unGen(rng, size);
-        };
+template <class T, std::size_t N>
+struct ArbitraryImpl<std::array<T, N>> {
+  static std::array<T, N> unGen(RngEngine& rng, std::size_t size) {
+    return arrayOf<T, N>().unGen(rng, size);
+  }
 
-template <typename T, std::size_t N>
-const typename Arbitrary<std::array<T, N>>::shrinkType
-    ArbitraryImpl<std::array<T, N>>::shrink = [](const std::array<T, N>& arr) {
-      const auto& arrayGenerator = arrayOf<T, N>();
-      return arrayGenerator.shrink(arr);
-    };
+  static std::vector<std::array<T, N>> shrink(const std::array<T, N>& v) {
+    return arrayOf<T, N>().shrink(v);
+  }
+};
 
 }  // namespace cppqc
-
 #endif

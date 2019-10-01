@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2010, Gregory Rogers All rights reserved.
+ * Copyright (c) 2019, Gregory Rogers and Philipp Claßen
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,6 +34,7 @@
 #include <functional>
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <ostream>
 #include <random>
 #include <stdexcept>
@@ -103,27 +105,23 @@ class StatelessGenerator {
  public:
   template <class StatelessGeneratorModel>
   StatelessGenerator(const StatelessGeneratorModel& gm)
-      : m_gen(new StatelessGenModel<StatelessGeneratorModel>(gm)) {}
+      : m_gen{new StatelessGenModel<StatelessGeneratorModel>(gm)} {}
 
-  StatelessGenerator(const StatelessGenerator& g) : m_gen(g.m_gen->clone()) {}
+  StatelessGenerator(const StatelessGenerator& g) : m_gen{g.m_gen->clone()} {}
 
   template <class StatelessGeneratorModel>
   StatelessGenerator& operator=(const StatelessGeneratorModel& gm) {
-    detail::StatelessGenConcept<T>* tmp =
-        new StatelessGenModel<StatelessGeneratorModel>(gm);
-    delete m_gen;
-    m_gen = tmp;
+    m_gen.reset(new StatelessGenModel<StatelessGeneratorModel>(gm));
     return *this;
   }
 
   StatelessGenerator& operator=(const StatelessGenerator& g) {
-    detail::StatelessGenConcept<T>* tmp = g.m_gen.clone();
-    delete m_gen;
-    m_gen = tmp;
+    if (this == &g) {
+      return *this;
+    }
+    m_gen.reset(g.m_gen.clone());
     return *this;
   }
-
-  ~StatelessGenerator() { delete m_gen; }
 
   T unGen(RngEngine& rng, std::size_t size) const {
     return m_gen->unGen(rng, size);
@@ -137,17 +135,19 @@ class StatelessGenerator {
    public:
     StatelessGenModel(StatelessGeneratorModel gm) : m_obj(std::move(gm)) {}
 
-    T unGen(RngEngine& rng, std::size_t size) { return m_obj.unGen(rng, size); }
+    T unGen(RngEngine& rng, std::size_t size) override {
+      return m_obj.unGen(rng, size);
+    }
 
     T unGen(RngEngine& rng, std::size_t size) const {
       return m_obj.unGen(rng, size);
     }
 
-    std::vector<T> shrink(const T& x) { return m_obj.shrink(x); }
+    std::vector<T> shrink(const T& x) override { return m_obj.shrink(x); }
 
     std::vector<T> shrink(const T& x) const { return m_obj.shrink(x); }
 
-    detail::StatelessGenConcept<T>* clone() const {
+    detail::StatelessGenConcept<T>* clone() const override {
       return new StatelessGenModel(m_obj);
     }
 
@@ -156,7 +156,7 @@ class StatelessGenerator {
   };
 
   friend class Generator<T>;
-  detail::StatelessGenConcept<T>* m_gen;
+  std::unique_ptr<detail::StatelessGenConcept<T>> m_gen;
 };
 
 template <class T>
@@ -167,7 +167,7 @@ class Generator {
  public:
   template <class GeneratorModel>
   Generator(const GeneratorModel& gm)
-      : m_gen(new GenModel<GeneratorModel>(gm)) {}
+      : m_gen{new GenModel<GeneratorModel>(gm)} {}
 
   Generator(const Generator& g) : m_gen(g.m_gen->clone()) {}
 
@@ -175,27 +175,22 @@ class Generator {
 
   template <class GeneratorModel>
   Generator& operator=(const GeneratorModel& gm) {
-    detail::GenConcept<T>* tmp = new GenModel<GeneratorModel>(gm);
-    delete m_gen;
-    m_gen = tmp;
+    m_gen.reset(new GenModel<GeneratorModel>(gm));
     return *this;
   }
 
   Generator& operator=(const Generator& g) {
-    detail::GenConcept<T>* tmp = g.m_gen->clone();
-    delete m_gen;
-    m_gen = tmp;
+    if (this == &g) {
+      return *this;
+    }
+    m_gen.reset(g.m_gen->clone());
     return *this;
   }
 
   Generator& operator=(const StatelessGenerator<T>& g) {
-    detail::GenConcept<T>* tmp = g.m_gen->clone();
-    delete m_gen;
-    m_gen = tmp;
+    m_gen.reset(g.m_gen->clone());
     return *this;
   }
-
-  ~Generator() { delete m_gen; }
 
   T unGen(RngEngine& rng, std::size_t size) const {
     return m_gen->unGen(rng, size);
@@ -223,7 +218,7 @@ class Generator {
     GeneratorModel m_obj;
   };
 
-  detail::GenConcept<T>* m_gen;
+  std::unique_ptr<detail::GenConcept<T>> m_gen;
 };
 
 /// Generates some example values and returns them.

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2016, Vladimir Strisovsky All rights reserved.
+ * Copyright (c) 2019, Vladimir Strisovsky and Philipp Claßen
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -22,6 +23,9 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+
+#ifndef CPPQC_COMPACT_CHECK_H
+#define CPPQC_COMPACT_CHECK_H
 
 #include "Arbitrary.h"
 #include "Test.h"
@@ -167,3 +171,4 @@ CompactCheck<void, void, void, T...> gen(const Generator<T>&... g) {
 }
 
 }  // namespace cppqc
+#endif

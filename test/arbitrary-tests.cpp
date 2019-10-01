@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2018, Philipp Classen All rights reserved.
+ * Copyright (c) 2019, Philipp Claßen
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,6 +30,28 @@
 #include <array>
 #include <random>
 #include <unordered_set>
+
+namespace ArbitraryTestsFixtures {
+struct UserDefinedType {
+  std::string check;
+};
+
+}  // namespace ArbitraryTestsFixtures
+
+namespace cppqc {
+template <>
+struct ArbitraryImpl<ArbitraryTestsFixtures::UserDefinedType> {
+  static ArbitraryTestsFixtures::UserDefinedType unGen(RngEngine& /*rng*/,
+                                                       std::size_t /*size*/) {
+    return {"from user-defined generator"};
+  }
+
+  static std::vector<ArbitraryTestsFixtures::UserDefinedType> shrink(
+      const ArbitraryTestsFixtures::UserDefinedType& /*v*/) {
+    return {{"from user-defined shrink operator"}};
+  }
+};
+}  // namespace cppqc
 
 using namespace cppqc;
 
@@ -169,4 +192,49 @@ TEST_CASE("Arbitrary<double>", "[arbitrary][double]") {
 
 TEST_CASE("Arbitrary<long double>", "[arbitrary][long double]") {
   TestArbitrary<long double>{}();
+}
+
+TEST_CASE("generator for user-defined class (used directly)",
+          "[arbitrary][user defined]") {
+  using ArbitraryTestsFixtures::UserDefinedType;
+  RngEngine rng;
+  UserDefinedType x = Arbitrary<UserDefinedType>::unGen(rng, 0);
+  REQUIRE(x.check == "from user-defined generator");
+}
+
+TEST_CASE("shrink operator for user-defined class (used directly)",
+          "[arbitrary][user defined]") {
+  using ArbitraryTestsFixtures::UserDefinedType;
+  UserDefinedType dummy;
+  std::vector<UserDefinedType> x = Arbitrary<UserDefinedType>::shrink(dummy);
+  REQUIRE(x.size() == 1);
+  REQUIRE(x[0].check == "from user-defined shrink operator");
+}
+
+TEST_CASE("generator for user-defined class (used indirectly)",
+          "[arbitrary][user defined]") {
+  using ArbitraryTestsFixtures::UserDefinedType;
+  using TestType =
+      std::pair<std::array<UserDefinedType, 2>, std::vector<UserDefinedType>>;
+
+  RngEngine rng;
+  TestType x = Arbitrary<TestType>::unGen(rng, 0);
+  REQUIRE(x.first[0].check == "from user-defined generator");
+  REQUIRE(x.first[1].check == "from user-defined generator");
+}
+
+TEST_CASE("shrink operator for user-defined class (used indirectly)",
+          "[arbitrary][user defined]") {
+  using ArbitraryTestsFixtures::UserDefinedType;
+  using TestType =
+      std::pair<std::array<UserDefinedType, 2>, std::vector<UserDefinedType>>;
+
+  UserDefinedType u;
+  TestType dummy = {{u, u}, {u, u, u}};
+  std::vector<TestType> shrink = Arbitrary<TestType>::shrink(dummy);
+
+  // Testing further details is difficult here, as it will be very
+  // implementation dependant. However, the fact that it compiles and that we
+  // get at least some candidates should already prevent some bugs.
+  REQUIRE(shrink.size() >= 2);
 }

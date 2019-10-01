@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2016, Philipp Classen All rights reserved.
+ * Copyright (c) 2019, Philipp Claßen
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -52,11 +53,56 @@ struct NontriviallyFailingProperty : cppqc::Property<std::vector<int>> {
   }
 };
 
+struct MinimalPassingIntRefProperty : cppqc::Property<int> {
+  bool check(const int& /*v*/) const override { return true; }
+  std::string name() const override {
+    return "int& dummy check (will always pass)";
+  }
+};
+
+struct ComplicatedNestedTypeWithHardToFindFailingProperty
+    : cppqc::Property<std::vector<
+          std::pair<std::vector<std::string>, std::pair<size_t, char>>>> {
+  bool check(const std::vector<
+             std::pair<std::vector<std::string>, std::pair<size_t, char>>>& v)
+      const override {
+    if (v.empty()) {
+      return true;
+    }
+
+    for (const auto& v_ : v) {
+      const std::vector<std::string>& v1 = v_.first;
+      const std::pair<size_t, char>& p2 = v_.second;
+      if (v1.empty()) {
+        continue;
+      }
+
+      const std::string& last = v1[v1.size() - 1];
+      if (last.empty()) {
+        continue;
+      }
+
+      if (last.size() == p2.first && last[0] == p2.second) {
+        // counter-example found!
+        return false;
+      }
+    }
+    return true;
+  }
+};
+
 }  // namespace FunctionalTestsFixtures
 
-TEST_CASE("minimal passing example", "[functional]") {
+TEST_CASE("minimal passing example (bool)", "[functional]") {
   const Result result =
       quickCheckOutput(FunctionalTestsFixtures::MinimalPassingProperty{});
+
+  REQUIRE(result.result == QC_SUCCESS);
+}
+
+TEST_CASE("minimal passing example (int)", "[functional]") {
+  const Result result =
+      quickCheckOutput(FunctionalTestsFixtures::MinimalPassingIntRefProperty{});
 
   REQUIRE(result.result == QC_SUCCESS);
 }
@@ -87,4 +133,17 @@ TEST_CASE("tests with fixed seeds must be repeatible", "[functional][seed]") {
     REQUIRE(run1.result == run2.result);
     REQUIRE(output1.str() == output2.str());
   }
+}
+
+TEST_CASE("tests with nested types and a non-trivial failure", "[functional]") {
+  // a counter-example should be found after a few thousand samples,
+  // but in this test rather be too conservative with the limit
+  constexpr std::size_t maxSuccess = 1000000;
+  detail::NullOstream out;
+  const Result result =
+      quickCheckOutput(FunctionalTestsFixtures::
+                           ComplicatedNestedTypeWithHardToFindFailingProperty{},
+                       out, maxSuccess);
+
+  REQUIRE(result.result == QC_FAILURE);
 }
