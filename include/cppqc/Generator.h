@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
+#include <ctime>
 #include <functional>
 #include <iosfwd>
 #include <map>
@@ -38,7 +39,6 @@
 #include <tuple>
 #include <utility>
 #include <vector>
-#include <ctime>
 
 namespace cppqc {
 

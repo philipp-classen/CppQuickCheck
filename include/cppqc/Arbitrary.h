@@ -42,17 +42,17 @@ struct IsOneOf;
 
 template <class T, class U, class... Us>
 struct IsOneOf<T, U, Us...> {
-    static constexpr bool value = IsOneOf<T, Us...>::value;
+  static constexpr bool value = IsOneOf<T, Us...>::value;
 };
 
 template <class T, class... Us>
 struct IsOneOf<T, T, Us...> {
-    static constexpr bool value = true;
+  static constexpr bool value = true;
 };
 
 template <class T>
 struct IsOneOf<T> {
-    static constexpr bool value = false;
+  static constexpr bool value = false;
 };
 
 /*
@@ -61,8 +61,15 @@ struct IsOneOf<T> {
  */
 template <class T>
 struct IntDistributionSupported {
-    static constexpr bool value =
-        IsOneOf<T, short, int, long, long long, unsigned short, unsigned int, unsigned long, unsigned long long>::value;
+  static constexpr bool value = IsOneOf<T,
+                                        short,
+                                        int,
+                                        long,
+                                        long long,
+                                        unsigned short,
+                                        unsigned int,
+                                        unsigned long,
+                                        unsigned long long>::value;
 };
 
 // default generators
@@ -75,7 +82,9 @@ struct IntDistributionSupported {
  */
 template <class Integral>
 Integral arbitraryBoundedIntegral(RngEngine& rng, std::size_t /*size*/) {
-  using DistributionType = typename std::conditional<IntDistributionSupported<Integral>::value, Integral, int>::type;
+  using DistributionType =
+      typename std::conditional<IntDistributionSupported<Integral>::value,
+                                Integral, int>::type;
   std::uniform_int_distribution<DistributionType> dist{
       std::numeric_limits<Integral>::lowest(),
       std::numeric_limits<Integral>::max()};

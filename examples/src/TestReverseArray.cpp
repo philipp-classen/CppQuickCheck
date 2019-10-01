@@ -25,8 +25,8 @@
 
 #include "cppqc.h"
 
-#include <array>
 #include <algorithm>
+#include <array>
 
 const int ArraySize = 5;
 
