@@ -564,8 +564,6 @@ namespace detail {
 template <class T>
 class FrequencyGenerator {
  public:
-  FrequencyGenerator() : m_tot(0) {}
-
   FrequencyGenerator& operator()(std::size_t weight, const Generator<T>& g) {
     if (weight != 0) {
       m_tot += weight;
@@ -587,6 +585,9 @@ class FrequencyGenerator {
   }
 
   std::vector<T> shrink(const T& x) {
+    if (m_gens.empty()) {
+      return {};
+    }
     auto it = m_gens.find(m_last_index);
     assert(it != m_gens.end());
     return it->second.shrink(x);
@@ -594,8 +595,8 @@ class FrequencyGenerator {
 
  private:
   std::map<std::size_t, Generator<T>> m_gens;
-  std::size_t m_tot;
-  std::size_t m_last_index;
+  std::size_t m_tot{0};
+  std::size_t m_last_index{0};
 };
 }  // namespace detail
 
