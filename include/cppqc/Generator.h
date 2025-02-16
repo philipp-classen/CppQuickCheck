@@ -304,7 +304,7 @@ void sampleShrinkOutput(const Generator<T>& g,
       T x = g.unGen(rng, i);
       std::vector<T> shr = g.shrink(x);
       if (randomized)
-        std::random_shuffle(shr.begin(), shr.end());
+        std::shuffle(shr.begin(), shr.end(), rng);
       out << x << " ->";
       for (std::size_t j = 0; j < num && j < shr.size(); ++j)
         out << ' ' << shr[j];
